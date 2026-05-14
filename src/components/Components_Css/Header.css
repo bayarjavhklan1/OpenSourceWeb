@@ -1,0 +1,114 @@
+
+.header {
+  width: 100%;
+  background-color: #ffffff;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.header_container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+
+.header_logo {
+  display: flex;
+  align-items: center;
+}
+
+.header_logo-icon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  display: block;
+}
+
+
+.header_nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto; /* nav를 오른쪽으로 밀기 */
+}
+
+.header_nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: #999;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.header_nav-item:hover{
+  background-color: #ffe8e8;
+  color: #ff5a5f;
+}
+
+
+.header_nav-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.header_nav-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.header_nav-badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background-color: #ff5a5f;
+  border-radius: 50%;
+}
+
+
+.header_right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 24px; /* nav 바로 오른쪽에 붙어서 따라옴 */
+}
+
+
+.header_bell {
+  position: relative;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.header_bell-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.header_bell-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #ff5a5f;
+  border-radius: 50%;
+}
+
+.header_profile {
+  width: 36px;
+  height: 36px;
+  background-color: #ffa07a;
+  border-radius: 50%;
+}
