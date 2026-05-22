@@ -1,0 +1,176 @@
+
+.ac-card {
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ac-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ── 이미지 영역 ── */
+.ac-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 160px;
+}
+
+/* 이미지 플레이스홀더 */
+.ac-placeholder {
+  width: 100%;
+  height: 100%;
+}
+
+.ac-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /*딱 맞게 조정 */
+  display: block;
+}
+
+/* 카테고리 배지 */
+.ac-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+/* 좋아요 버튼 */
+.ac-like-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  align-items: center;
+  transition: background 0.15s , transform 0.15s;
+}
+
+.ac-like-btn:hover {
+  background: #ffffff;
+  transform: scale(1.1);/*살짝 크게 만들기 */
+}
+
+.ac-like-btn--active {
+  background: #fff0f0;
+}
+
+/* ── 카드 본문 ── */
+.ac-body {
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;/*모든 요소 새로로 만들게 하기 */
+  gap: 6px;
+
+}
+
+.ac-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.35;
+  margin-bottom: 2px;
+}
+
+/* 메타 정보 (위치, 날짜) */
+.ac-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 참여 인원 */
+.ac-participants {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ac-participants-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;/* 요소를 양 끝에 붙이고 사이 여백을 똑같이 분배 */
+}
+
+.ac-participants-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.ac-percentage {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* 진행 바 */
+.ac-progress-track {
+  width: 100%;
+  height: 5px;
+  background: #f3f4f6;
+  border-radius: 999px;
+}
+
+.ac-progress-fill {
+  height: 100%;
+  background: #f97316;
+  border-radius: 999px;
+  transition: width 0.4s;
+}
+
+/* 구분선 */
+.ac-divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 4px 0;
+}
+
+/* 주최자 */
+.ac-organizer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ac-organizer-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.ac-organizer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ac-organizer-label {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.ac-organizer-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}

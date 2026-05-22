@@ -1,7 +1,6 @@
 import React from "react";
 import "./Components_Css/Header.css";
 
-
 // 아이콘들 react 자체에서 불러오는 방법 사용 
 import HomeIcon   from "../assets/icons/HomeIcon.svg?react";
 import ExploreIcon from "../assets/icons/ExploreIcon.svg?react";

@@ -1,0 +1,145 @@
+/* ════════════════════════════════════════
+   DiscoverPage — 메인 페이지 스타일
+   ════════════════════════════════════════ */
+
+.dp-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 24px 60px;
+}
+
+/* ── 타이틀 영역 ── */
+.dp-hero {
+  margin-bottom: 24px;
+}
+
+.dp-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.dp-subtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ── 검색 바 ── */
+.dp-search-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.dp-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+}
+
+.dp-search-input {
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 40px 0 40px;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff;
+  transition: border-color 0.2s , box-shadow 0.2s;
+}
+
+.dp-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.dp-search-input:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.dp-search-clear {
+  position: absolute;
+  right: 12px;
+  top: 5%;/* 위 아래 조절 */
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 10px;
+}
+
+.dp-search-clear:hover {
+  color: #374151;
+}
+
+/* ── 카테고리 탭 ── */
+.dp-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.dp-tab {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.18s;
+}
+
+.dp-tab:hover {
+  border-color: #f97316;
+  color: #f97316;
+}
+
+.dp-tab--active {
+  background: #f97316;
+  border-color: #f97316;
+  color: #ffffff;
+}
+
+.dp-tab--active:hover {
+  color: #ffffff;
+}
+
+/* ── 카드 그리드 ── */
+.dp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /*3개의 열을 생성하고 루프 1fr로 공간 균등하게 분배  */
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .dp-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .dp-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dp-tabs {
+    gap: 6px;
+  }
+
+  .dp-tab {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* ── 빈 상태 ── */
+.dp-empty {
+  text-align: center;
+  padding: 60px 0;
+  color: #9ca3af;
+  font-size: 15px;
+}
