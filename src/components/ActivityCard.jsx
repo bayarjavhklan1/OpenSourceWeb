@@ -49,8 +49,8 @@ function ActivityCard({ activity, onToggleLike }) {
     joined, total, percentage, organizer, image, liked,
   } = activity;
 
-  const badgeStyle    = CATEGORY_COLORS[category]            ?? { bg: "#e5e7eb", text: "#374151" };
-  const placeholderBg = CATEGORY_PLACEHOLDER_BG[category]    ?? "#f3f4f6";
+  const badgeStyle    = CATEGORY_COLORS[category] ?? { bg: "#e5e7eb", text: "#374151" };
+  const placeholderBg = CATEGORY_PLACEHOLDER_BG[category] ?? "#f3f4f6";
 
   return (
     <div className="ac-card">

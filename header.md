@@ -75,5 +75,30 @@ min-width: 250px로 고정
 참고 링크: https://developer.mozilla.org/ko/docs/Web/CSS/Guides/Grid_layout/Basic_concepts
 
 
+DB 형식:
+  id -> 이건 코드에 의해 + 
+  category    
+  title       
+  location   
+  date   
+  joined      
+  total       
+  percentage
+  organizer
+  image
+  liked
+
+Category: 
+  Study Together
+  Eat Together
+  Exercise
+  Language Exchange
+  Travel
+  Hobbies
+  Social Events
+  Other
+
+
+
 
 ``으로 

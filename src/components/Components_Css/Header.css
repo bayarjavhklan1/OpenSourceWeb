@@ -50,6 +50,12 @@
   color: #ff5a5f;
 }
 
+/* 현재 활성화된 nav 아이템 */
+.header_nav-item--active {
+  background-color: #ffe8e8;
+  color: #ff5a5f;
+}
+
 
 .header_nav-icon {
   width: 18px;
