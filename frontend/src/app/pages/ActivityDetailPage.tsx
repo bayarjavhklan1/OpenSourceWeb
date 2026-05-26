@@ -1,0 +1,298 @@
+import { useState } from 'react';
+import { useParams, Link } from 'react-router';
+import { MapPin, Calendar, Users, Heart, Share2, MessageCircle, ChevronLeft, Clock } from 'lucide-react';
+
+export function ActivityDetailPage() {
+  const { id } = useParams();
+  const [isJoined, setIsJoined] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const activity = {
+    id: 1,
+    title: 'Korean Language Exchange @ Cafe',
+    category: 'Language Exchange',
+    description:
+      "Join us for a relaxed Korean-English language exchange session at a cozy cafe in Hongdae! Whether you're a beginner or advanced, everyone is welcome. We'll split into small groups based on language level and chat over coffee and snacks. It's a great way to practice, make friends, and learn about each other's cultures!",
+    location: 'Anthracite Coffee, Hongdae',
+    address: '240-3 Donggyo-ro, Yeonnam-dong, Mapo-gu, Seoul',
+    date: 'May 15, 2026',
+    time: '6:00 PM',
+    duration: '2 hours',
+    participants: 8,
+    maxParticipants: 12,
+    image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786',
+    organizer: {
+      name: 'Sarah Kim',
+      avatar: '👩',
+      bio: 'Korean-American, love meeting new people!',
+      activitiesOrganized: 12,
+    },
+  };
+
+  const participantsList = [
+    { id: 1, name: 'Sarah Kim', avatar: '👩', country: 'USA' },
+    { id: 2, name: 'Yuki Tanaka', avatar: '👩', country: 'Japan' },
+    { id: 3, name: 'Marco Silva', avatar: '👨', country: 'Brazil' },
+    { id: 4, name: 'Emma Wilson', avatar: '👩', country: 'UK' },
+    { id: 5, name: 'Chen Wei', avatar: '👨', country: 'China' },
+    { id: 6, name: 'Anna Müller', avatar: '👩', country: 'Germany' },
+    { id: 7, name: 'Omar Hassan', avatar: '👨', country: 'Egypt' },
+    { id: 8, name: 'Lisa Park', avatar: '👩', country: 'Canada' },
+  ];
+
+  const comments = [
+    {
+      id: 1,
+      user: { name: 'Emma Wilson', avatar: '👩' },
+      text: 'This sounds amazing! Can beginners join?',
+      time: '2 hours ago',
+      replies: [
+        {
+          id: 11,
+          user: { name: 'Sarah Kim', avatar: '👩' },
+          text: 'Absolutely! All levels are welcome 😊',
+          time: '1 hour ago',
+        },
+      ],
+    },
+    {
+      id: 2,
+      user: { name: 'Marco Silva', avatar: '👨' },
+      text: 'Looking forward to this! See everyone there!',
+      time: '5 hours ago',
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background pb-20 lg:pb-8">
+      {/* Header Image */}
+      <div className="relative h-56 sm:h-64 lg:h-96 bg-muted">
+        <div
+          className="w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${activity.image})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+        {/* Back Button */}
+        <Link
+          to="/feed"
+          className="absolute top-4 left-4 w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+        >
+          <ChevronLeft size={20} className="text-foreground" />
+        </Link>
+
+        {/* Action Buttons */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button
+            onClick={() => setIsFavorite(!isFavorite)}
+            className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+          >
+            <Heart
+              size={20}
+              className={`${isFavorite ? 'fill-primary text-primary' : 'text-muted-foreground'} transition-colors`}
+            />
+          </button>
+          <button className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+            <Share2 size={20} className="text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Category Badge */}
+        <div className="absolute bottom-4 left-4 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium">
+          {activity.category}
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Title and Details */}
+            <div className="bg-card rounded-2xl p-6 border border-border">
+              <h1 className="text-3xl font-bold mb-4">{activity.title}</h1>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center flex-shrink-0">
+                    <MapPin size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{activity.location}</p>
+                    <p className="text-sm text-muted-foreground">{activity.address}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Calendar size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{activity.date}</p>
+                    <p className="text-sm text-muted-foreground">{activity.time}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Clock size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Duration</p>
+                    <p className="text-sm text-muted-foreground">{activity.duration}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Users size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{activity.participants}/{activity.maxParticipants} Joined</p>
+                    <p className="text-sm text-muted-foreground">{activity.maxParticipants - activity.participants} spots left</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-px bg-border my-6" />
+
+              <div>
+                <h2 className="font-semibold mb-3">About this activity</h2>
+                <p className="text-muted-foreground leading-relaxed">{activity.description}</p>
+              </div>
+            </div>
+
+            {/* Organizer */}
+            <div className="bg-card rounded-2xl p-6 border border-border">
+              <h2 className="font-semibold mb-4">Organizer</h2>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">
+                  {activity.organizer.avatar}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-lg">{activity.organizer.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">{activity.organizer.bio}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Organized {activity.organizer.activitiesOrganized} activities
+                  </p>
+                </div>
+                <Link
+                  to={`/chat/organizer-${id}`}
+                  className="px-4 py-2 border border-primary text-primary rounded-xl hover:bg-primary hover:text-primary-foreground transition-all text-center sm:flex-shrink-0"
+                >
+                  Message
+                </Link>
+              </div>
+            </div>
+
+            {/* Comments Section */}
+            <div className="bg-card rounded-2xl p-6 border border-border">
+              <h2 className="font-semibold mb-4 flex items-center gap-2">
+                <MessageCircle size={20} />
+                Comments ({comments.length})
+              </h2>
+
+              <div className="space-y-4 mb-4">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="space-y-3">
+                    <div className="flex gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg flex-shrink-0">
+                        {comment.user.avatar}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium">{comment.user.name}</span>
+                          <span className="text-xs text-muted-foreground">{comment.time}</span>
+                        </div>
+                        <p className="text-muted-foreground">{comment.text}</p>
+                      </div>
+                    </div>
+
+                    {comment.replies?.map((reply) => (
+                      <div key={reply.id} className="flex gap-3 ml-12">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center flex-shrink-0">
+                          {reply.user.avatar}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">{reply.user.name}</span>
+                            <span className="text-xs text-muted-foreground">{reply.time}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{reply.text}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg flex-shrink-0">
+                  😊
+                </div>
+                <input
+                  type="text"
+                  placeholder="Add a comment..."
+                  className="flex-1 px-4 py-2 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Join Button */}
+            <div className="hidden lg:block bg-card rounded-2xl p-6 border border-border sticky top-20">
+              <button
+                onClick={() => setIsJoined(!isJoined)}
+                className={`w-full py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all ${
+                  isJoined
+                    ? 'bg-muted text-foreground border border-border'
+                    : 'bg-primary text-primary-foreground hover:scale-[1.02]'
+                }`}
+              >
+                {isJoined ? 'Leave Activity' : 'Join Activity'}
+              </button>
+              <p className="text-xs text-center text-muted-foreground mt-3">
+                {activity.maxParticipants - activity.participants} spots remaining
+              </p>
+            </div>
+
+            {/* Participants */}
+            <div className="bg-card rounded-2xl p-6 border border-border">
+              <h2 className="font-semibold mb-4">
+                Participants ({activity.participants})
+              </h2>
+              <div className="space-y-3">
+                {participantsList.map((participant) => (
+                  <div key={participant.id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg">
+                      {participant.avatar}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{participant.name}</p>
+                      <p className="text-xs text-muted-foreground">{participant.country}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky Join Button - Mobile */}
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent lg:hidden">
+        <button
+          onClick={() => setIsJoined(!isJoined)}
+          className={`w-full py-4 rounded-2xl font-semibold shadow-2xl transition-all ${
+            isJoined
+              ? 'bg-muted text-foreground border-2 border-border'
+              : 'bg-primary text-primary-foreground'
+          }`}
+        >
+          {isJoined ? 'Leave Activity' : 'Join Activity'}
+        </button>
+      </div>
+    </div>
+  );
+}
