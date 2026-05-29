@@ -1,3 +1,7 @@
+
+코드 기반은 bayarjavhklan1가 올려 놓은 코드 기반이다. 
+
+
 1. 아이디,비번, 개인정보 입력 -> db에 저장
 ㄴ 권한 같은 것 설정 관련해서는 보이는 페이지 새로 생성 -> root한테만 보이는 debugging page => 여기서 권한 주는 방식 차용(username 검색으로 주는 버튼 생성) 
 
@@ -22,18 +26,43 @@ auth.js:
     user: {
       name:  newUser.name,
       email: newUser.email,
-      role:  newUser.role
+      role:  newUser.role -> 이 형식은 enum: ['user', 'admin'] 집합 형식을 통해 구성했다.
     } -> 이런식으로 결과 값 리턴 , 아이디도 형식 같음 
 
 
 
 최적화를 위한 비동기 처리 : 
+수업 시간에 배운 싱글 스레드를 찾아보는 도중에 싱글 스레드면 작업 단위가 1개인데 어떤식으로 빠르게 처리한다는 거지라는 생각이 들어서 찾아보았다. 
+Node.js + 어떤 라이브러리(livu?)을 활용해서 코드를 돌림 
 Event Loop: 
  Call Stack
  Background / Thread Pool로 할 일 또스 
 ㄴ 배경에 있는 OS나 C++ 스레드 풀이 대신 수행합니다.
 작업 완료 알림 (Task Queue)
 메인 스레드가 승인 
+요약하자면 싱글 스레드는 맞지만 여러 작업들은 os나 C++ 스레드 풀이 대신 수행 하고 승인만 메인 스레드가 진행한다
+ㄴ Q. 승인 속도 < 처리 속도가 된다면 queue에 병목이 생기지 않나? 
+-> 그래서 비동기화와 await을 통하여 순서를 조정하므로서 완화한다. 
+async(업무 방식을 비동기적으로 바꿈) 와 await(오래걸리는 작업은 이걸로 승인 순서 바꿈) -> 이거 어디다가 await을 붙여야할지는 잘 모르겠다. 자동으로 되는건지 아니면 그냥 
 
-async(업무 방식을 비동기적으로 바꿈) 와 await(오래걸리는 작업은 이걸로 승인 순서 바꿈) 
 
+
+seed.js 
+기존 frontend에 있던 데이터를 moogooDB에 넘기는 작업으로 
+countDocument() -> insertMany() -> disconnect로 진행한다. 
+
+
+
+models/Activity.js 
+frontend를 참고하여 여러 요소드에 대해 스키마 정의표를 참고하여서 
+json 형태로 정의했다. 
+const Activity = mongoose.model('Activity', activitySchema);
+export default Activity; 을 통하여 
+모델 정의 후 내보내는 과정을 통해 외부에서 import 할 수 있도록 정의했다. 
+
+
+routes/activity.js
+전체적인 모임 관련 필터링 과정을 routes하는 페이지로 
+모임 전체 목록,특정 모임 상제 정보, 새로운 모임 등록 
+ㄴ 이게 Mongoose에 있는 models를 사용하다 보니까 특히 DB 조회나 저장 작업에서 빈 데이터 출력 오류가 생김 
+ㄴ 즉 데이터베이스 작업 완료 -> 조회,검색 순서를 맞춰야함 -> 위에서 배운 비동기적와 await을 활용하여 순서를 맞춰야함 
