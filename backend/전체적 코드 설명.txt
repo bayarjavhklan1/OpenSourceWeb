@@ -1,0 +1,39 @@
+1. 아이디,비번, 개인정보 입력 -> db에 저장
+ㄴ 권한 같은 것 설정 관련해서는 보이는 페이지 새로 생성 -> root한테만 보이는 debugging page => 여기서 권한 주는 방식 차용(username 검색으로 주는 버튼 생성) 
+
+2. 모임 생성 => db 저장 => 조회,삭제,검색 구현 
+ㄴ 등급에 따라 보이는거 제외 하기 ex) 회원가입 안하면 프로필 X, 만드는거 못함 ,join 못함 
+
+User.js 
+스키마 구성: 이름,이메일,비밀번호,역할(이건 user,admin 구분), 자동 날,
+이메일,이름은 unique 해야하기 때문에 boolean으로 구분 
+
+
+
+
+auth.js: 
+보안을 위해 Post 방식으로 보냄 -> localhost:3000/register로 요청이 들어오면 아래 코드 실행 -> 웹 페이지에서 입력받은 name,email,password,adminCode(이건 관리자 계정 유무 판단) 받음
+예외 처리 : 필수 항목 유무에 대한 처리 
+
+비밀번호 암호화(bcrypt) -> DB에 저장 -> save
+  return res.json({
+    success: true,
+    message: '회원가입 성공!',
+    user: {
+      name:  newUser.name,
+      email: newUser.email,
+      role:  newUser.role
+    } -> 이런식으로 결과 값 리턴 , 아이디도 형식 같음 
+
+
+
+최적화를 위한 비동기 처리 : 
+Event Loop: 
+ Call Stack
+ Background / Thread Pool로 할 일 또스 
+ㄴ 배경에 있는 OS나 C++ 스레드 풀이 대신 수행합니다.
+작업 완료 알림 (Task Queue)
+메인 스레드가 승인 
+
+async(업무 방식을 비동기적으로 바꿈) 와 await(오래걸리는 작업은 이걸로 승인 순서 바꿈) 
+
