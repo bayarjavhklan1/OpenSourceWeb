@@ -78,3 +78,43 @@ POST /users/:id/demote : 권한 뺏기
 ㄴ 그래서 찾아 보니 $regex를 활용을 하면 일부분만 입력해도 찾기 가능 
 ㄴ 대소문자 같은건 하드 코딩으로 코드를 짜는게 귀찮아서 찾아보니 $options : ignore를 활용해서 검색의 편의를 늘렸다. 
 Moogoo DB의 라이브러리 findByIdAndDelete을 활용해서 직관적으로 값을 지우는 방향으로 감 
+
+
+admin.html 
+기본적인 html 문법으로 만들었다. class가 아닌 개별 id를 지정해서 값을 가져오는 방식을 선택했다. 
+검색,초기화,저장,취소 버튼을 먼저 구현할 예정이다. 
+
+반복되면서 사용될 것 function으로 처리 : 
+showmsg() : id : msg 칸에 특정 이벤트 발생시 오류or통과 표시 해주는 알람 
+문제점 : 이게 뜨고 안사라지는 상황 발생 
+ㄴ setTimeout(function() { box.textContent = ''; }, 3000);으로 3초만에 사라지게 만듬 
+
+ShowTab(): 탭이 admin만 보이게 하기 위해서 T/F로 구분 
+삼항 연산자를 사용해서 User 유뮤에 따라서 display : none or ""으로 구분함 
+
+resetUserSearch() : 검색을 하고 값이 남아 있어서 항상 reset 되게 만듬 
+ㄴ 항상 뒤에는 전제 유저 다시 불러오게 적용 
+
+
+loadUsers() : 
+1. 검색어 준비 -> html의  검색 부분에서 value 가져옴 
+형식 자체가 SERVER/admin/users?keyword가 되어야하기 때문에 word가 들어오면 그게 붙도록 조건문 붙임 
+2. 서버에게 유저 목록 요청 (url, res.json) -> Mongoo DB라서 document로 리턴 되기 때문에 다른 전환 필요 없음 
+3. 기존에 있던 목록 다 지우기 
+ㄴ 이 과정이 구현할 때 빠져서 겹치는 현상 발생 
+4. 오류 관련 -> 목록 불러오기, 데이터 결과 X 
+5. 유저마다 표 한줄씩 만들기 
+ㄴ 시험에서 했던 표 생성 
+6. 거기에 관리자,일반 유저 관련 버튼 만들기 
+-> 다 표에 붙이기 
+
+
+deleteUser() : 
+삭제 전 팝업을 통하여 한 번 더 물어보기
+ㄴ 미연의 방지 추가 안할수도?
+
+서버에게 user 지워달라고 하기  fetch(SERVER + '/admin/users/' + d, { method: 'DELETE' })
+ㄴ 아까 만들어둔 showMsg로 확인하기 -> 되면 새로고침(loadUsers)
+
+promoteUser(),demoteUser() : 
+위의 것과 template은 동일하지만 method : POST로 변경 

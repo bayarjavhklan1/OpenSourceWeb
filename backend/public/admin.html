@@ -123,6 +123,127 @@
     </div>
   </div>
 
+  <script>
+    var SERVER = 'http://localhost:5000';
+
+    function resetUserSearch() {
+  document.getElementById('user-keyword').value = '';
+  loadUsers();
+}
+
+function loadUsers() {
+  var word = document.getElementById('user-keyword').value.trim();
+  var url = SERVER + '/admin/users';
+
+  if (word) {
+    url = url + '?keyword=' + word;
+  }
+
+  var res = fetch(url);
+  var result = res.json();
+
+  var tbl = document.getElementById('user-tbody');
+  tbl.innerHTML = '';
+
+  if (!result.success) {
+    showMsg('유저 목록을 불러오지 못했어요', true);
+    return;
+  }
+
+  if (result.data.length === 0) {
+    tbl.innerHTML = '<tr><td colspan="5">결과 없음</td></tr>';
+    return;
+  }
+
+  for (var i = 0; i < result.data.length; i++) {
+    var u = result.data[i];
+
+    var d = new Date(u.createdAt);
+    var since = d.getFullYear() + '년 '+ (d.getMonth() + 1) + '월 '+ d.getDate() + '일';
+
+    var badge = u.role === 'admin' ? '[관리자]' : '[일반]';
+
+    var tr = document.createElement('tr');
+
+    var tdName  = document.createElement('td');
+    var tdEmail = document.createElement('td');
+    var tdBadge = document.createElement('td');
+    var tdSince = document.createElement('td');
+    var tdAct   = document.createElement('td');
+
+    tdName.textContent  = u.name;
+    tdEmail.textContent = u.email;
+    tdBadge.textContent = badge;
+    tdSince.textContent = since;
+
+    if (u.role !== 'admin') {
+      var promoteBtn = document.createElement('button');
+      promoteBtn.textContent = '관리자 승격';
+      promoteBtn.onclick = function() { promoteUser(u._id); };
+      tdAct.appendChild(promoteBtn);
+    } else {
+      var demoteBtn = document.createElement('button');
+      demoteBtn.textContent = '일반으로';
+      demoteBtn.onclick = function() { demoteUser(u._id); };
+      tdAct.appendChild(demoteBtn);
+    }
+
+    var deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '삭제';
+    deleteBtn.onclick = function() { deleteUser(u._id, u.name); };
+    tdAct.appendChild(deleteBtn);
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdEmail);
+    tr.appendChild(tdBadge);
+    tr.appendChild(tdSince);
+    tr.appendChild(tdAct);
+
+    tbl.appendChild(tr);
+  }
+}
+    function deleteUser(d, name) {
+      if (!confirm('"' + name + '" 유저를 삭제할까요? 되돌릴 수 없어요.')) 
+      return;
+      fetch(SERVER + '/admin/users/' + d, { method: 'DELETE' })
+      .then(function(r) {
+        return r.json();
+
+      }).then(function(result) {
+        showMsg(result.message, !result.success);
+
+        if (result.success) loadUsers();
+      });
+    }
+
+    function promoteUser(d) {
+      if (!confirm('이 유저를 관리자로 승격할까요?')) return;
+      fetch(SERVER + '/admin/users/' + d + '/promote', { method: 'POST' 
+      }).then(function(r) {
+        return r.json();
+
+      }).then(function(result) {
+        showMsg(result.message, !result.success);
+
+        if (result.success) 
+        loadUsers();
+
+      });
+    }
+
+    function demoteUser(d) {
+      if (!confirm('이 관리자를 일반 유저로 변경할까요?')) return;
+      fetch(SERVER + '/admin/users/' + d + '/demote', { method: 'POST' }).then(function(r) {
+        return r.json();
+      }).then(function(result) {
+        showMsg(result.message, !result.success);
+        if (result.success) loadUsers();
+      });
+    }
+
+
+  </script>
+
   
 </body>
 </html>
