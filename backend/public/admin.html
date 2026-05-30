@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 페이지</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+    .tab-btn.active { font-weight: bold; }
+    .msg.ok { color: green; }
+    .msg.err { color: red; }
+    .modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); }
+    .modal-box { background: #fff; width: 400px; margin: 80px auto; padding: 20px; border: 1px solid #ccc; }
+    .form-row { margin-bottom: 8px; }
+    .form-row label { display: block; }
+    .form-row input, .form-row textarea { width: 100%; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+
+  <h2>관리자 페이지</h2>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-user-btn" onclick="showTab('users')">유저 관리</button>
+    <button class="tab-btn" id="tab-activity-btn" onclick="showTab('activities')">모임 관리</button>
+  </div>
+
+  <p class="msg" id="msg"></p>
+
+
+  <div id="section-users">
+    <div class="search-bar">
+      <input type="text" id="user-keyword" placeholder="이름 또는 이메일로 검색">
+      <button onclick="loadUsers()">검색</button>
+      <button onclick="resetUserSearch()">초기화</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>이메일</th>
+          <th>역할</th>
+          <th>가입일</th>
+          <th>작업</th>
+        </tr>
+      </thead>
+      <tbody id="user-tbody"></tbody>
+    </table>
+  </div>
+
+
+
+  <div id="section-activities" style="display:none">
+    <div class="search-bar">
+      <input type="text" id="activity-keyword" placeholder="제목, 카테고리, 장소로 검색">
+      <button onclick="loadActivities()">검색</button>
+      <button onclick="resetActivitySearch()">초기화</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>제목</th>
+          <th>카테고리</th>
+          <th>장소</th>
+          <th>날짜 / 시간</th>
+          <th>참가자</th>
+          <th>작업</th>
+        </tr>
+      </thead>
+      <tbody id="activity-tbody"></tbody>
+    </table>
+  </div>
+
+
+
+
+
+
+  <div class="modal-bg" id="edit-modal">
+    <div class="modal-box">
+      <h3>모임 수정</h3>
+      <input type="hidden" id="edit-id">
+      <div class="form-row">
+        <label>제목 *</label>
+        <input type="text" id="edit-title">
+      </div>
+      <div class="form-row">
+        <label>카테고리 *</label>
+        <input type="text" id="edit-category">
+      </div>
+      <div class="form-row">
+        <label>설명</label>
+        <textarea id="edit-description" rows="3"></textarea>
+      </div>
+      <div class="form-row">
+        <label>장소 *</label>
+        <input type="text" id="edit-location">
+      </div>
+      <div class="form-row">
+        <label>주소</label>
+        <input type="text" id="edit-address">
+      </div>
+      <div class="form-row">
+        <label>날짜 * (예: 2025-06-01)</label>
+        <input type="text" id="edit-date">
+      </div>
+      <div class="form-row">
+        <label>시간 * (예: 14:00)</label>
+        <input type="text" id="edit-time">
+      </div>
+      <div class="form-row">
+        <label>소요시간</label>
+        <input type="text" id="edit-duration">
+      </div>
+      <div class="form-row">
+        <label>최대 참가자 수 *</label>
+        <input type="number" id="edit-maxParticipants" min="1">
+      </div>
+      <div class="modal-btns">
+        <button onclick="saveActivity()">저장</button>
+        <button onclick="closeModal()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  
+</body>
+</html>
