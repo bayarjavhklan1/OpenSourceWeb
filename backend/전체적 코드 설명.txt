@@ -77,4 +77,4 @@ POST /users/:id/demote : 권한 뺏기
 검색이 너무 불친절함 -> 단어가 글자가 모두 다 똑같아야 데이터를 찾을 수 있다는 방식으로 동작함 
 ㄴ 그래서 찾아 보니 $regex를 활용을 하면 일부분만 입력해도 찾기 가능 
 ㄴ 대소문자 같은건 하드 코딩으로 코드를 짜는게 귀찮아서 찾아보니 $options : ignore를 활용해서 검색의 편의를 늘렸다. 
-Moogoo DB의 라이브러리 findByIdAndDelete
+Moogoo DB의 라이브러리 findByIdAndDelete을 활용해서 직관적으로 값을 지우는 방향으로 감 
