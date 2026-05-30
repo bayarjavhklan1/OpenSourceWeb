@@ -66,3 +66,15 @@ routes/activity.js
 모임 전체 목록,특정 모임 상제 정보, 새로운 모임 등록 
 ㄴ 이게 Mongoose에 있는 models를 사용하다 보니까 특히 DB 조회나 저장 작업에서 빈 데이터 출력 오류가 생김 
 ㄴ 즉 데이터베이스 작업 완료 -> 조회,검색 순서를 맞춰야함 -> 위에서 배운 비동기적와 await을 활용하여 순서를 맞춰야함 
+
+
+routes/admin.js 
+
+GET /users : 전체 명단 받음 -> 이름 이메일 입력하면 알 수 있게 만듬 
+DELETE /users/:id : 특징 친구 내보내고 모임에서 아예 지워버리는 경우 
+POST /users/:id/promote : 권한 승격 
+POST /users/:id/demote : 권한 뺏기 
+검색이 너무 불친절함 -> 단어가 글자가 모두 다 똑같아야 데이터를 찾을 수 있다는 방식으로 동작함 
+ㄴ 그래서 찾아 보니 $regex를 활용을 하면 일부분만 입력해도 찾기 가능 
+ㄴ 대소문자 같은건 하드 코딩으로 코드를 짜는게 귀찮아서 찾아보니 $options : ignore를 활용해서 검색의 편의를 늘렸다. 
+Moogoo DB의 라이브러리 findByIdAndDelete
