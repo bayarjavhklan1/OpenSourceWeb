@@ -125,109 +125,111 @@
 
   <script>
     var SERVER = 'http://localhost:5000';
+    var activityList = [];
 
-    function resetUserSearch() {
-  document.getElementById('user-keyword').value = '';
-  loadUsers();
-}
-
-function loadUsers() {
-  var word = document.getElementById('user-keyword').value.trim();
-  var url = SERVER + '/admin/users';
-
-  if (word) {
-    url = url + '?keyword=' + word;
-  }
-
-  var res = fetch(url);
-  var result = res.json();
-
-  var tbl = document.getElementById('user-tbody');
-  tbl.innerHTML = '';
-
-  if (!result.success) {
-    showMsg('유저 목록을 불러오지 못했어요', true);
-    return;
-  }
-
-  if (result.data.length === 0) {
-    tbl.innerHTML = '<tr><td colspan="5">결과 없음</td></tr>';
-    return;
-  }
-
-  for (var i = 0; i < result.data.length; i++) {
-    var u = result.data[i];
-
-    var d = new Date(u.createdAt);
-    var since = d.getFullYear() + '년 '+ (d.getMonth() + 1) + '월 '+ d.getDate() + '일';
-
-    var badge = u.role === 'admin' ? '[관리자]' : '[일반]';
-
-    var tr = document.createElement('tr');
-
-    var tdName  = document.createElement('td');
-    var tdEmail = document.createElement('td');
-    var tdBadge = document.createElement('td');
-    var tdSince = document.createElement('td');
-    var tdAct   = document.createElement('td');
-
-    tdName.textContent  = u.name;
-    tdEmail.textContent = u.email;
-    tdBadge.textContent = badge;
-    tdSince.textContent = since;
-
-    if (u.role !== 'admin') {
-      var promoteBtn = document.createElement('button');
-      promoteBtn.textContent = '관리자 승격';
-      promoteBtn.onclick = function() { promoteUser(u._id); };
-      tdAct.appendChild(promoteBtn);
-    } else {
-      var demoteBtn = document.createElement('button');
-      demoteBtn.textContent = '일반으로';
-      demoteBtn.onclick = function() { demoteUser(u._id); };
-      tdAct.appendChild(demoteBtn);
+    function showMsg(txt, fail) {
+      var box = document.getElementById('msg');
+      box.textContent = txt;
+      box.className = 'msg ' + (fail ? 'err' : 'ok');
     }
 
-    var deleteBtn = document.createElement('button');
-    deleteBtn.textContent = '삭제';
-    deleteBtn.onclick = function() { deleteUser(u._id, u.name); };
-    tdAct.appendChild(deleteBtn);
+    function showTab(tab) {
+      var onUsers = tab === 'users';
+      document.getElementById('section-users').style.display = onUsers ? '' : 'none';
+      document.getElementById('section-activities').style.display = onUsers ? 'none' : '';
+      document.getElementById('tab-user-btn').className = 'tab-btn' + (onUsers ? ' active' : '');
+      document.getElementById('tab-activity-btn').className = 'tab-btn' + (!onUsers ? ' active' : '');
+      if (onUsers) loadUsers();
+      else loadActivities();
+    }
 
-    tr.appendChild(tdName);
-    tr.appendChild(tdEmail);
-    tr.appendChild(tdBadge);
-    tr.appendChild(tdSince);
-    tr.appendChild(tdAct);
+    // ── 유저 ──
 
-    tbl.appendChild(tr);
-  }
-}
-    function deleteUser(d, name) {
-      if (!confirm('"' + name + '" 유저를 삭제할까요? 되돌릴 수 없어요.')) 
-      return;
-      fetch(SERVER + '/admin/users/' + d, { method: 'DELETE' })
-      .then(function(r) {
+    function resetUserSearch() {
+      document.getElementById('user-keyword').value = '';
+      loadUsers();
+    }
+
+    function loadUsers() {
+      var word = document.getElementById('user-keyword').value;
+      var url = SERVER + '/admin/users';
+      if (word) url = url + '?keyword=' + word;
+
+      fetch(url).then(function(r) {
         return r.json();
+      }).then(function(result) {
+        var tbl = document.getElementById('user-tbody');
+        tbl.innerHTML = '';
 
+        if (!result.success) { showMsg('유저 목록을 불러오지 못했어요', true); return; }
+        if (result.data.length === 0) {
+          tbl.innerHTML = '<tr><td colspan="5">결과 없음</td></tr>';
+          return;
+        }
+
+        for (var i = 0; i < result.data.length; i++) {
+          var u = result.data[i];
+
+          var d = new Date(u.createdAt);
+          var since = d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+          var badge = u.role === 'admin' ? '[관리자]' : '[일반]';
+
+          var tr     = document.createElement('tr');
+          var tdName  = document.createElement('td');
+          var tdEmail = document.createElement('td');
+          var tdBadge = document.createElement('td');
+          var tdSince = document.createElement('td');
+          var tdAct   = document.createElement('td');
+
+          tdName.textContent  = u.name;
+          tdEmail.textContent = u.email;
+          tdBadge.textContent = badge;
+          tdSince.textContent = since;
+
+          if (u.role !== 'admin') {
+            var promoteBtn = document.createElement('button');
+            promoteBtn.textContent = '관리자 승격';
+            promoteBtn.setAttribute('onclick', 'promoteUser("' + u._id + '")');
+            tdAct.appendChild(promoteBtn);
+          } else {
+            var demoteBtn = document.createElement('button');
+            demoteBtn.textContent = '일반으로';
+            demoteBtn.setAttribute('onclick', 'demoteUser("' + u._id + '")');
+            tdAct.appendChild(demoteBtn);
+          }
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.textContent = '삭제';
+          deleteBtn.setAttribute('onclick', 'deleteUser("' + u._id + '", "' + u.name + '")');
+          tdAct.appendChild(deleteBtn);
+
+          tr.appendChild(tdName);
+          tr.appendChild(tdEmail);
+          tr.appendChild(tdBadge);
+          tr.appendChild(tdSince);
+          tr.appendChild(tdAct);
+          tbl.appendChild(tr);
+        }
+      });
+    }
+
+    function deleteUser(d, name) {
+      if (!confirm('"' + name + '" 유저를 삭제할까요? 되돌릴 수 없어요.')) return;
+      fetch(SERVER + '/admin/users/' + d, { method: 'DELETE' }).then(function(r) {
+        return r.json();
       }).then(function(result) {
         showMsg(result.message, !result.success);
-
         if (result.success) loadUsers();
       });
     }
 
     function promoteUser(d) {
       if (!confirm('이 유저를 관리자로 승격할까요?')) return;
-      fetch(SERVER + '/admin/users/' + d + '/promote', { method: 'POST' 
-      }).then(function(r) {
+      fetch(SERVER + '/admin/users/' + d + '/promote', { method: 'POST' }).then(function(r) {
         return r.json();
-
       }).then(function(result) {
         showMsg(result.message, !result.success);
-
-        if (result.success) 
-        loadUsers();
-
+        if (result.success) loadUsers();
       });
     }
 
@@ -241,7 +243,126 @@ function loadUsers() {
       });
     }
 
+    // ── 모임 ──
 
+    function resetActivitySearch() {
+      document.getElementById('activity-keyword').value = '';
+      loadActivities();
+    }
+
+    function loadActivities() {
+      var word = document.getElementById('activity-keyword').value;
+      var url = SERVER + '/admin/activities';
+      if (word) url = url + '?keyword=' + word;
+
+      fetch(url).then(function(r) {
+        return r.json();
+      }).then(function(result) {
+        var tbl = document.getElementById('activity-tbody');
+        tbl.innerHTML = '';
+
+        if (!result.success) { showMsg('모임 목록을 불러오지 못했어요', true); return; }
+        if (result.data.length === 0) {
+          tbl.innerHTML = '<tr><td colspan="6">결과 없음</td></tr>';
+          return;
+        }
+
+        activityList = result.data;
+
+        for (var i = 0; i < result.data.length; i++) {
+          var item = result.data[i];
+
+          var tr      = document.createElement('tr');
+          var tdTitle  = document.createElement('td');
+          var tdCat    = document.createElement('td');
+          var tdLoc    = document.createElement('td');
+          var tdDate   = document.createElement('td');
+          var tdPeople = document.createElement('td');
+          var tdAct    = document.createElement('td');
+
+          tdTitle.textContent  = item.title;
+          tdCat.textContent    = item.category;
+          tdLoc.textContent    = item.location;
+          tdDate.textContent   = item.date + ' ' + item.time;
+          tdPeople.textContent = item.participants + ' / ' + item.maxParticipants;
+
+          var editBtn = document.createElement('button');
+          editBtn.textContent = '수정';
+          editBtn.setAttribute('onclick', 'openEdit(' + i + ')');
+          tdAct.appendChild(editBtn);
+
+          var delBtn = document.createElement('button');
+          delBtn.textContent = '삭제';
+          delBtn.setAttribute('onclick', 'deleteActivity("' + item._id + '")');
+          tdAct.appendChild(delBtn);
+
+          tr.appendChild(tdTitle);
+          tr.appendChild(tdCat);
+          tr.appendChild(tdLoc);
+          tr.appendChild(tdDate);
+          tr.appendChild(tdPeople);
+          tr.appendChild(tdAct);
+          tbl.appendChild(tr);
+        }
+      });
+    }
+
+    function deleteActivity(d) {
+      if (!confirm('이 모임을 삭제할까요? 되돌릴 수 없어요.')) return;
+      fetch(SERVER + '/admin/activities/' + d, { method: 'DELETE' }).then(function(r) {
+        return r.json();
+      }).then(function(result) {
+        showMsg(result.message, !result.success);
+        if (result.success) loadActivities();
+      });
+    }
+
+    function openEdit(i) {
+      var item = activityList[i];
+      document.getElementById('edit-id').value = item._id;
+      document.getElementById('edit-title').value = item.title;
+      document.getElementById('edit-category').value = item.category;
+      document.getElementById('edit-description').value = item.description;
+      document.getElementById('edit-location').value = item.location;
+      document.getElementById('edit-address').value = item.address;
+      document.getElementById('edit-date').value = item.date;
+      document.getElementById('edit-time').value = item.time;
+      document.getElementById('edit-duration').value = item.duration;
+      document.getElementById('edit-maxParticipants').value = item.maxParticipants;
+      document.getElementById('edit-modal').style.display = '';
+    }
+
+    function closeModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+    }
+
+    function saveActivity() {
+      var aid = document.getElementById('edit-id').value;
+      var form = {
+        title: document.getElementById('edit-title').value,
+        category: document.getElementById('edit-category').value,
+        description: document.getElementById('edit-description').value,
+        location: document.getElementById('edit-location').value,
+        address: document.getElementById('edit-address').value,
+        date: document.getElementById('edit-date').value,
+        time: document.getElementById('edit-time').value,
+        duration: document.getElementById('edit-duration').value,
+        maxParticipants: document.getElementById('edit-maxParticipants').value
+      };
+
+      fetch(SERVER + '/admin/activities/' + aid, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      }).then(function(r) {
+        return r.json();
+      }).then(function(result) {
+        showMsg(result.message, !result.success);
+        if (result.success) { closeModal(); loadActivities(); }
+      });
+    }
+
+    loadUsers();
   </script>
 
   
