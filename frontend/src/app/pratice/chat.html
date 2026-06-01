@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Test</title>
+  
+</head>
+<body>
+
+  <h2>Chat Test</h2>
+
+  <div id="room-input">
+    <input id="room-id" type="text" value="1" placeholder="방 번호" />
+    <button onclick="changeRoom()">방 변경</button>
+  </div>
+
+  <div id="messages"></div>
+
+  <form id="form" onsubmit="sendMessage(event)">
+    <input id="input" type="text" placeholder="메시지 입력..." autocomplete="off" />
+    <button id="send" type="submit" disabled>전송</button>
+  </form>
+
+  <script>
+    var SERVER = 'http://localhost:5000';
+    var myName = '나';
+    var currentRoom = '1';
+    var lastId = '';
+    var pollTimer = null;
+
+    var messagesEl = document.getElementById('messages');
+    var inputEl = document.getElementById('input');
+    var sendBtn = document.getElementById('send');
+
+    inputEl.addEventListener('input', function() {
+      sendBtn.disabled = inputEl.value.trim() === '';
+    });
+
+    function changeRoom() {
+      var newRoom = document.getElementById('room-id').value.trim();
+      if (!newRoom) return;
+      currentRoom = newRoom;
+      lastId = '';
+      messagesEl.innerHTML = '';
+      if (pollTimer) clearInterval(pollTimer);
+      loadMessages('');
+      pollTimer = setInterval(function() { loadMessages(lastId); }, 5000);
+    }
+
+    function loadMessages(Id) {
+      var url = SERVER + '/chat/messages?room=' + currentRoom;
+      if (Id) url += '&lastId=' + Id;
+
+      fetch(url)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data.length) return;
+          data.forEach(function(msg) { appendMessage(msg); });
+          lastId = data[data.length - 1]._id;
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        })
+    }
+
+    function appendMessage(msg) {
+      var isMe = msg.sender_name === myName;
+      var d = new Date(msg.created_at);
+      var time = d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+
+      var wrap = document.createElement('div');
+      wrap.className = 'msg-wrap ' + (isMe ? 'me' : 'other');
+
+      var bubble = document.createElement('div');
+      bubble.className = 'msg ' + (isMe ? 'me' : 'other');
+      bubble.textContent = msg.message_text;
+
+      var timeEl = document.createElement('div');
+      timeEl.className = 'msg-time';
+      timeEl.textContent = (isMe ? '' : msg.sender_name + ' · ') + time;
+
+      wrap.appendChild(bubble);
+      wrap.appendChild(timeEl);
+      messagesEl.appendChild(wrap);
+    }
+
+    function sendMessage(e) {
+      e.preventDefault();
+      var text = inputEl.value.trim();
+      if (!text) return;
+
+      sendBtn.disabled = true;
+
+      fetch(SERVER + '/chat/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_room: currentRoom,
+          sender_name: myName,
+          message_text: text
+        })
+      })
+        .then(function(res) { return res.json(); })
+        .then(function() {
+          inputEl.value = '';
+          sendBtn.disabled = true;
+          loadMessages(lastId);
+        })
+        
+    }
+
+    // 초기 로드
+    loadMessages('');
+    pollTimer = setInterval(function() { loadMessages(lastId); }, 5000);
+  </script>
+
+</body>
+</html>

@@ -194,3 +194,27 @@ server에 route 뚫기 :| /chat로 시작  -> chat.js ->  채팅
 ㄴ   Chat.find(query).sort({ created_at: 1 }) => Chat 객체에서 들어온 query값에서 찾기 created_at : 1(오름차순)
 ㄴ   Mongoose의 문법
 query._id = { $gt: lastId }; //_id > lastId (초과)
+handleSendMessage에 fetch 추가 -> GeT -> db 저장 -> 
+json 응답 -> setMessages() => 배열로 받고 express lib의 timer interval을 통하여 구현 
+즉 받고 5초마다 loadMessage -> 서버 GET -> /messages -> DB 조회 -> 새 것만 응답 -> 화면에 붙이기 
+ㄴ 새것은 react lib에서 current 사용 
+
+
+useEffect(function() {
+  setMessages([]);        // 기존 내용 지우기 
+  lastIdRef.current = ''; // 번호 초기화 
+  loadMessages('');       // 내용 처음부터 가져오기 
+
+  var timer = setInterval(function() {
+    loadMessages(lastIdRef.current); // 5초마다 내용 갱신 
+  }, 5000);
+
+  return function() { clearInterval(timer); }; // 나가면 타이머 중지 
+}, [chatId]);
+
+문제점 : 
+메세지 분리 현상 발생 
+ㄴ prev에 concat이 안되있어서 추가 setMessages(function(prev) { return prev.concat(data)
+
+순서가 굉장히 중요함 -> 이거 때문에 고생함 
+ㄴ 마지막 번호를 기억하고 그걸 나중에 +1 해서 가져오는 형식으로 구현함 
