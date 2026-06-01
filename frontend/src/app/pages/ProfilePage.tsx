@@ -1,98 +1,87 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router';
 import { Edit, MapPin, Calendar, Users, MessageCircle } from 'lucide-react';
 import { EditProfileModal } from '../components/EditProfileModal';
 
 interface ActivityItem {
-  id: number;
+  _id: string;
   title: string;
   date: string;
   time?: string;
   location: string;
   image: string;
-  status?: string;
   participants?: number;
   maxParticipants?: number;
+  organizer?: { name: string; avatar: string };
 }
 
 export function ProfilePage() {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const isOwnProfile = !userId;
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'organized'>('upcoming');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [allActivities, setAllActivities] = useState<ActivityItem[]>([]);
 
   const [user, setUser] = useState({
-    name: 'Sarah Kim',
-    avatar: '👩',
-    bio: 'Korean-American student at Seoul National University. Love meeting new people and exploring Korea! 🇰🇷',
-    location: 'Seoul, Korea',
-    joinedDate: 'January 2026',
-    interests: ['Language Exchange', 'Travel', 'Food', 'Photography', 'Hiking', 'K-pop'],
+    name: '정재민', 
+    email: 'jaemin@naver.com', 
+    avatar: '😎', 
+    bio: '안녕하세요! 소프트웨어공학 전공 정재민입니다.',
+    location: '서울, 대한민국',
+    joinedDate: '',
+    interests: ['React', 'TypeScript', 'Node.js'] as string[],
     stats: {
-      activitiesJoined: 24,
-      activitiesOrganized: 12,
-      followers: 156,
-      following: 89,
+      activitiesJoined: 0,
+      activitiesOrganized: 0,
+      followers: 1,
+      following: 1,
     },
   });
+
+  useEffect(() => {
+    fetch('http://localhost:5000/activities')
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        setAllActivities(data);
+
+        // 내가 만든 모임 수 세기
+        let count = 0;
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].organizer && data[i].organizer.name === user.name) {
+            count++;
+          }
+        }
+
+        setUser(function(prev) {
+          return {
+            ...prev,
+            stats: { ...prev.stats, activitiesOrganized: count, activitiesJoined: count }
+          };
+        });
+      })
+      .catch((err) => console.error("데이터를 가져오는 중 오류 발생:", err));
+  }, [user.name]);
+
 
   const handleSaveProfile = (updatedProfile: any) => {
     setUser({ ...user, ...updatedProfile });
   };
 
-  const upcomingActivities: ActivityItem[] = [
-    {
-      id: 1,
-      title: 'Korean Language Exchange @ Cafe',
-      date: 'May 15, 2026',
-      time: '6:00 PM',
-      location: 'Hongdae, Seoul',
-      participants: 8,
-      maxParticipants: 12,
-      image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786',
-    },
-    {
-      id: 2,
-      title: 'Weekend Hiking to Bukhansan',
-      date: 'May 17, 2026',
-      time: '8:00 AM',
-      location: 'Bukhansan National Park',
-      participants: 15,
-      maxParticipants: 20,
-      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4',
-    },
-  ];
+  // 오늘 날짜
+  const today = new Date().toISOString().slice(0, 10);
 
-  const pastActivities: ActivityItem[] = [
-    {
-      id: 3,
-      title: 'Thai Food Cooking Class',
-      date: 'May 8, 2026',
-      location: 'Itaewon',
-      image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d',
-    },
-    {
-      id: 4,
-      title: 'Seoul City Walking Tour',
-      date: 'May 1, 2026',
-      location: 'Gyeongbokgung Palace',
-      image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451',
-    },
-  ];
+  const organizedActivities = allActivities.filter(function(a) {
+    return a.organizer && a.organizer.name === user.name;
+  });
 
-  const organizedActivities: ActivityItem[] = [
-    {
-      id: 1,
-      title: 'Korean Language Exchange @ Cafe',
-      date: 'May 15, 2026',
-      time: '6:00 PM',
-      location: 'Hongdae, Seoul',
-      status: 'Upcoming',
-      participants: 8,
-      maxParticipants: 12,
-      image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786',
-    },
-  ];
+  const upcomingActivities = organizedActivities.filter(function(a) {
+    return a.date >= today;
+  });
+
+  const pastActivities = organizedActivities.filter(function(a) {
+    return a.date < today;
+  });
 
   const getActivities = () => {
     switch (activeTab) {
@@ -110,28 +99,31 @@ export function ProfilePage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Profile Header */}
+      
         <div className="bg-card rounded-2xl p-6 lg:p-8 border border-border mb-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
-            {/* Avatar */}
+        
             <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center text-5xl lg:text-6xl flex-shrink-0">
               {user.avatar}
             </div>
 
-            {/* User Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
                   <h1 className="text-2xl lg:text-3xl font-bold mb-2">{user.name}</h1>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <MapPin size={16} />
-                      <span>{user.location}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar size={16} />
-                      <span>Joined {user.joinedDate}</span>
-                    </div>
+                    {user.location && (
+                      <div className="flex items-center gap-1">
+                        <MapPin size={16} />
+                        <span>{user.location}</span>
+                      </div>
+                    )}
+                    {user.email && (
+                      <div className="flex items-center gap-1">
+                        <Calendar size={16} />
+                        <span>{user.email}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -146,9 +138,11 @@ export function ProfilePage() {
                 )}
               </div>
 
-              <p className="text-muted-foreground mb-4 leading-relaxed">{user.bio}</p>
+              {user.bio && (
+                <p className="text-muted-foreground mb-4 leading-relaxed">{user.bio}</p>
+              )}
 
-              {/* Stats */}
+             
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-primary">{user.stats.activitiesJoined}</p>
@@ -182,11 +176,10 @@ export function ProfilePage() {
             </div>
           </div>
 
-          {/* Interests */}
           <div className="mt-6 pt-6 border-t border-border">
             <h2 className="font-semibold mb-3">Interests</h2>
             <div className="flex flex-wrap gap-2">
-              {user.interests.map((interest) => (
+              {user.interests.map((interest: string) => (
                 <span
                   key={interest}
                   className="px-4 py-2 bg-secondary text-foreground rounded-full text-sm font-medium"
@@ -206,9 +199,9 @@ export function ProfilePage() {
           </div>
         </div>
 
-        {/* Activity Tabs */}
+        
         <div className="bg-card rounded-2xl border border-border overflow-hidden">
-          {/* Tab Navigation */}
+         
           <div className="flex border-b border-border overflow-x-auto">
             <button
               onClick={() => setActiveTab('upcoming')}
@@ -242,7 +235,7 @@ export function ProfilePage() {
             </button>
           </div>
 
-          {/* Tab Content */}
+         
           <div className="p-6">
             {getActivities().length === 0 ? (
               <div className="text-center py-12">
@@ -266,8 +259,8 @@ export function ProfilePage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {getActivities().map((activity) => (
                   <Link
-                    key={activity.id}
-                    to={`/activity/${activity.id}`}
+                    key={activity._id}
+                    to={`/activity/${activity._id}`}
                     className="group flex gap-4 p-4 bg-background rounded-xl hover:shadow-lg transition-all border border-border"
                   >
                     <div
@@ -305,7 +298,7 @@ export function ProfilePage() {
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
+     
       <EditProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
