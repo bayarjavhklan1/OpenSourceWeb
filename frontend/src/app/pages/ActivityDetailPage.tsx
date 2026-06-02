@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
 import { MapPin, Calendar, Users, Heart, Share2, MessageCircle, ChevronLeft, Clock } from 'lucide-react';
 
@@ -6,28 +6,17 @@ export function ActivityDetailPage() {
   const { id } = useParams();
   const [isJoined, setIsJoined] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [activity, setActivity] = useState<any>(null);
 
-  const activity = {
-    id: 1,
-    title: 'Korean Language Exchange @ Cafe',
-    category: 'Language Exchange',
-    description:
-      "Join us for a relaxed Korean-English language exchange session at a cozy cafe in Hongdae! Whether you're a beginner or advanced, everyone is welcome. We'll split into small groups based on language level and chat over coffee and snacks. It's a great way to practice, make friends, and learn about each other's cultures!",
-    location: 'Anthracite Coffee, Hongdae',
-    address: '240-3 Donggyo-ro, Yeonnam-dong, Mapo-gu, Seoul',
-    date: 'May 15, 2026',
-    time: '6:00 PM',
-    duration: '2 hours',
-    participants: 8,
-    maxParticipants: 12,
-    image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786',
-    organizer: {
-      name: 'Sarah Kim',
-      avatar: '👩',
-      bio: 'Korean-American, love meeting new people!',
-      activitiesOrganized: 12,
-    },
-  };
+  useEffect(() => {
+    fetch('http://localhost:5000/activities/' + id)
+      .then(res => res.json())
+      .then(data => setActivity(data));
+  }, [id]);
+
+  if (!activity) {
+    return <div className="min-h-screen flex items-center justify-center">불러오는 중...</div>;
+  }
 
   const participantsList = [
     { id: 1, name: 'Sarah Kim', avatar: '👩', country: 'USA' },
