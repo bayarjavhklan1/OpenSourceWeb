@@ -3,14 +3,24 @@ import { Link, useLocation } from 'react-router';
 
 export function MobileNav() {
   const location = useLocation();
+  const isLoggedIn = !!localStorage.getItem("user");
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
     { icon: Compass, label: 'Explore', path: '/feed' },
-    { icon: PlusCircle, label: 'Create', path: '/create' },
-    { icon: MessageCircle, label: 'Chat', path: '/chat' },
-    { icon: User, label: 'Profile', path: '/profile' },
   ];
+
+  if (isLoggedIn) {
+    navItems.push(
+      { icon: PlusCircle, label: 'Create', path: '/create' },
+      { icon: MessageCircle, label: 'Chat', path: '/chat' },
+      { icon: User, label: 'Profile', path: '/profile' }
+    );
+  } else {
+    navItems.push(
+      { icon: User, label: 'Login', path: '/auth' }
+    );
+  }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg lg:hidden z-50">

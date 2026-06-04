@@ -10,13 +10,19 @@ import { Link, useLocation } from "react-router";
 import logo from "../../assets/Screenshot 2026-05-25 at 22.17.52.png";
 export function DesktopNav() {
   const location = useLocation();
+  const isLoggedIn = !!localStorage.getItem("user");
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
     { icon: Compass, label: "Explore", path: "/feed" },
-    { icon: PlusCircle, label: "Create", path: "/create" },
-    { icon: MessageCircle, label: "Chat", path: "/chat" },
   ];
+
+  if (isLoggedIn) {
+    navItems.push(
+      { icon: PlusCircle, label: "Create", path: "/create" },
+      { icon: MessageCircle, label: "Chat", path: "/chat" }
+    );
+  }
 
   return (
     <nav className="hidden lg:block sticky top-0 z-50 bg-card border-b border-border shadow-sm">
@@ -54,16 +60,27 @@ export function DesktopNav() {
               );
             })}
 
-            <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all relative">
-              <Bell size={20} />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-            </button>
+            {isLoggedIn && (
+              <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all relative">
+                <Bell size={20} />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+              </button>
+            )}
 
-            <Link to="/profile" className="ml-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-                <User size={20} className="text-white" />
-              </div>
-            </Link>
+            {isLoggedIn ? (
+              <Link to="/profile" className="ml-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
+                  <User size={20} className="text-white" />
+                </div>
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="ml-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-semibold shadow-sm hover:shadow-md transition-all text-sm"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
       </div>

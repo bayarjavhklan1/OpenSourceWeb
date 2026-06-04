@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router';
-import { Edit, MapPin, Calendar, Users, MessageCircle } from 'lucide-react';
-import { EditProfileModal } from '../components/EditProfileModal';
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router";
+import { Edit, MapPin, Calendar, Users, MessageCircle } from "lucide-react";
+import { EditProfileModal } from "../components/EditProfileModal";
 
 interface ActivityItem {
   _id: string;
@@ -19,19 +19,21 @@ export function ProfilePage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const isOwnProfile = !userId;
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'organized'>('upcoming');
+  const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "organized">(
+    "upcoming",
+  );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [allActivities, setAllActivities] = useState<ActivityItem[]>([]);
 
-  const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
-  const savedProfile = JSON.parse(localStorage.getItem('profile') || 'null');
+  const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+  const savedProfile = JSON.parse(localStorage.getItem("profile") || "null");
 
   const [user, setUser] = useState({
-    name: savedUser ? savedUser.name : '',
-    avatar: savedProfile ? savedProfile.avatar : '아바타',
-    bio: savedProfile ? savedProfile.bio : '',
-    location: savedProfile ? savedProfile.location : '',
-    joinedDate: '',
+    name: savedUser ? savedUser.name : "",
+    avatar: savedProfile ? savedProfile.avatar : "아바타",
+    bio: savedProfile ? savedProfile.bio : "",
+    location: savedProfile ? savedProfile.location : "",
+    joinedDate: "",
     interests: savedProfile ? savedProfile.interests : [],
     stats: {
       activitiesJoined: 0,
@@ -43,13 +45,15 @@ export function ProfilePage() {
 
   useEffect(() => {
     if (!savedUser) {
-      navigate('/auth');
+      navigate("/auth");
       return;
     }
 
-    fetch('http://localhost:5000/activities')
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
+    fetch("http://localhost:5000/activities")
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
         setAllActivities(data);
 
         // 내가 만든 모임 수 세기
@@ -60,10 +64,14 @@ export function ProfilePage() {
           }
         }
 
-        setUser(function(prev) {
+        setUser(function (prev) {
           return {
             ...prev,
-            stats: { ...prev.stats, activitiesOrganized: count, activitiesJoined: count }
+            stats: {
+              ...prev.stats,
+              activitiesOrganized: count,
+              activitiesJoined: count,
+            },
           };
         });
       });
@@ -76,24 +84,34 @@ export function ProfilePage() {
       interests: updatedProfile.interests,
       avatar: user.avatar,
     };
-    localStorage.setItem('profile', JSON.stringify(newProfile));
+    localStorage.setItem("profile", JSON.stringify(newProfile));
     setUser({ ...user, ...updatedProfile });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("profile");
+    navigate("/");
   };
 
   // 오늘 날짜 (DB 날짜 형식이 "2026-06-01" 같은 문자열이라 그냥 비교)
   const today = new Date().toISOString().slice(0, 10);
 
   // 내가 만든 모임만 골라냄
-  const mine = allActivities.filter(function(a) {
+  const mine = allActivities.filter(function (a) {
     return a.organizer && a.organizer.name === user.name;
   });
-  const soon = mine.filter(function(a) { return a.date >= today; }); // 앞으로 할거
-  const done = mine.filter(function(a) { return a.date < today; });  // 지난거
+  const soon = mine.filter(function (a) {
+    return a.date >= today;
+  }); // 앞으로 할거
+  const done = mine.filter(function (a) {
+    return a.date < today;
+  }); // 지난거
 
   const getActivities = () => {
-    if (activeTab === 'upcoming') return soon;
-    if (activeTab === 'past') return done;
-    if (activeTab === 'organized') return mine;
+    if (activeTab === "upcoming") return soon;
+    if (activeTab === "past") return done;
+    if (activeTab === "organized") return mine;
     return [];
   };
 
@@ -112,7 +130,9 @@ export function ProfilePage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
-                  <h1 className="text-2xl lg:text-3xl font-bold mb-2">{user.name}</h1>
+                  <h1 className="text-2xl lg:text-3xl font-bold mb-2">
+                    {user.name}
+                  </h1>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                     {user.location && (
                       <div className="flex items-center gap-1">
@@ -141,25 +161,35 @@ export function ProfilePage() {
               </div>
 
               {user.bio && (
-                <p className="text-muted-foreground mb-4 leading-relaxed">{user.bio}</p>
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  {user.bio}
+                </p>
               )}
 
               {/* Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">{user.stats.activitiesJoined}</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {user.stats.activitiesJoined}
+                  </p>
                   <p className="text-xs text-muted-foreground">Joined</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">{user.stats.activitiesOrganized}</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {user.stats.activitiesOrganized}
+                  </p>
                   <p className="text-xs text-muted-foreground">Organized</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">{user.stats.followers}</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {user.stats.followers}
+                  </p>
                   <p className="text-xs text-muted-foreground">Followers</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">{user.stats.following}</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {user.stats.following}
+                  </p>
                   <p className="text-xs text-muted-foreground">Following</p>
                 </div>
               </div>
@@ -207,31 +237,31 @@ export function ProfilePage() {
           {/* Tab Navigation */}
           <div className="flex border-b border-border overflow-x-auto">
             <button
-              onClick={() => setActiveTab('upcoming')}
+              onClick={() => setActiveTab("upcoming")}
               className={`flex-1 px-6 py-4 font-medium transition-all ${
-                activeTab === 'upcoming'
-                  ? 'text-primary border-b-2 border-primary bg-secondary/30'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                activeTab === "upcoming"
+                  ? "text-primary border-b-2 border-primary bg-secondary/30"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               Upcoming
             </button>
             <button
-              onClick={() => setActiveTab('past')}
+              onClick={() => setActiveTab("past")}
               className={`flex-1 px-6 py-4 font-medium transition-all ${
-                activeTab === 'past'
-                  ? 'text-primary border-b-2 border-primary bg-secondary/30'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                activeTab === "past"
+                  ? "text-primary border-b-2 border-primary bg-secondary/30"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               Past
             </button>
             <button
-              onClick={() => setActiveTab('organized')}
+              onClick={() => setActiveTab("organized")}
               className={`flex-1 px-6 py-4 font-medium transition-all ${
-                activeTab === 'organized'
-                  ? 'text-primary border-b-2 border-primary bg-secondary/30'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                activeTab === "organized"
+                  ? "text-primary border-b-2 border-primary bg-secondary/30"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               Organized
@@ -247,15 +277,17 @@ export function ProfilePage() {
                 </div>
                 <h3 className="font-semibold mb-2">No activities yet</h3>
                 <p className="text-sm text-muted-foreground mb-6">
-                  {activeTab === 'organized'
-                    ? 'Start organizing activities to build your community!'
-                    : 'Join activities to connect with other students!'}
+                  {activeTab === "organized"
+                    ? "Start organizing activities to build your community!"
+                    : "Join activities to connect with other students!"}
                 </p>
                 <Link
-                  to={activeTab === 'organized' ? '/create' : '/feed'}
+                  to={activeTab === "organized" ? "/create" : "/feed"}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
-                  {activeTab === 'organized' ? 'Create Activity' : 'Explore Activities'}
+                  {activeTab === "organized"
+                    ? "Create Activity"
+                    : "Explore Activities"}
                 </Link>
               </div>
             ) : (
@@ -283,7 +315,7 @@ export function ProfilePage() {
                           <MapPin size={14} />
                           <span className="truncate">{activity.location}</span>
                         </div>
-                        {'participants' in activity && (
+                        {"participants" in activity && (
                           <div className="flex items-center gap-2">
                             <Users size={14} />
                             <span>
@@ -299,6 +331,17 @@ export function ProfilePage() {
             )}
           </div>
         </div>
+
+        {isOwnProfile && (
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={handleLogout}
+              className="px-8 py-3 bg-primary text-primary-foreground rounded-2xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 hover:opacity-90 transition-all cursor-pointer"
+            >
+              Log out
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Edit Profile Modal */}
