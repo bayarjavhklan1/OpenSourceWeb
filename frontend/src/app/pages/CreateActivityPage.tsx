@@ -2,10 +2,21 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Upload, MapPin, Calendar, Users, Type, AlignLeft, Tag, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router';
+import { activityService, uploadService } from '../../api/services';
 
 export function CreateActivityPage() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [location, setLocation] = useState('');
+  const [address, setAddress] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [duration, setDuration] = useState('');
+  const [maxParticipants, setMaxParticipants] = useState<number>(12);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const categories = [
     'Study Together',
@@ -18,9 +29,40 @@ export function CreateActivityPage() {
     'Other',
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/feed');
+    if (!selectedCategory) {
+      alert("Please select a category");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      let imageUrl = '';
+      if (imageFile) {
+        const uploadRes = await uploadService.uploadImage(imageFile);
+        imageUrl = uploadRes.data.imageUrl;
+      }
+
+      await activityService.create({
+        title,
+        category: selectedCategory,
+        description,
+        location,
+        address,
+        date,
+        time,
+        duration,
+        maxParticipants,
+        image: imageUrl || 'https://images.unsplash.com/photo-1556761175-4b46a572b786', // Fallback
+      });
+      navigate('/feed');
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      alert('Failed to create activity.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,15 +89,25 @@ export function CreateActivityPage() {
               <Upload size={18} className="text-primary" />
               <span className="font-medium">Cover Image</span>
             </label>
-            <div className="border-2 border-dashed border-border rounded-2xl p-8 text-center hover:border-primary transition-colors cursor-pointer bg-muted/30">
+            <label className="block border-2 border-dashed border-border rounded-2xl p-8 text-center hover:border-primary transition-colors cursor-pointer bg-muted/30 relative">
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setImageFile(e.target.files[0]);
+                  }
+                }}
+              />
               <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-3">
                 <Upload size={24} className="text-primary" />
               </div>
-              <p className="font-medium mb-1">Click to upload cover image</p>
+              <p className="font-medium mb-1">{imageFile ? imageFile.name : 'Click to upload cover image'}</p>
               <p className="text-sm text-muted-foreground">
                 PNG, JPG up to 10MB
               </p>
-            </div>
+            </label>
           </div>
 
           {/* Activity Title */}
@@ -67,6 +119,8 @@ export function CreateActivityPage() {
             <input
               type="text"
               placeholder="e.g., Korean Language Exchange @ Cafe"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-3 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
               required
             />
@@ -105,6 +159,8 @@ export function CreateActivityPage() {
             <textarea
               rows={5}
               placeholder="Describe your activity in detail..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full px-4 py-3 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
               required
             />
@@ -122,12 +178,16 @@ export function CreateActivityPage() {
             <input
               type="text"
               placeholder="e.g., Hongdae, Seoul"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               className="w-full px-4 py-3 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 mb-3"
               required
             />
             <input
               type="text"
               placeholder="Detailed address (optional)"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
               className="w-full px-4 py-3 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
@@ -143,6 +203,8 @@ export function CreateActivityPage() {
                 <label className="block text-sm text-muted-foreground mb-2">Date</label>
                 <input
                   type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
                   className="w-full px-4 py-3 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                   required
                 />
@@ -151,6 +213,8 @@ export function CreateActivityPage() {
                 <label className="block text-sm text-muted-foreground mb-2">Time</label>
                 <input
                   type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
                   className="w-full px-4 py-3 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                   required
                 />
@@ -160,6 +224,8 @@ export function CreateActivityPage() {
                 <input
                   type="text"
                   placeholder="e.g., 2 hours"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
                   className="w-full px-4 py-3 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
               </div>
@@ -177,6 +243,8 @@ export function CreateActivityPage() {
               min="2"
               max="100"
               placeholder="e.g., 12"
+              value={maxParticipants}
+              onChange={(e) => setMaxParticipants(parseInt(e.target.value))}
               className="w-full px-4 py-3 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
               required
             />
@@ -196,9 +264,10 @@ export function CreateActivityPage() {
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-4 bg-primary text-primary-foreground rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+              disabled={isLoading}
+              className="flex-1 px-6 py-4 bg-primary text-primary-foreground rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] disabled:opacity-50"
             >
-              Create Activity
+              {isLoading ? 'Creating...' : 'Create Activity'}
             </button>
           </div>
         </form>

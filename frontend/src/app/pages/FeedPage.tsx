@@ -1,102 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Users, Plus } from 'lucide-react';
 import { Link } from 'react-router';
 import { ActivityCard } from '../components/ActivityCard';
+import { activityService } from '../../api/services';
 
 export function FeedPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [activities, setActivities] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const categories = ['All', 'Study Together', 'Eat Together', 'Exercise', 'Language Exchange', 'Travel', 'Hobbies'];
 
-  const activities = [
-    {
-      id: 1,
-      title: 'Korean Language Exchange @ Cafe',
-      category: 'Language Exchange',
-      location: 'Hongdae, Seoul',
-      date: 'May 15, 2026',
-      time: '6:00 PM',
-      participants: 8,
-      maxParticipants: 12,
-      image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786',
-      organizer: { name: 'Sarah Kim', avatar: '👩' },
-      isFavorite: false,
-    },
-    {
-      id: 2,
-      title: 'Weekend Hiking to Bukhansan',
-      category: 'Travel',
-      location: 'Bukhansan National Park',
-      date: 'May 17, 2026',
-      time: '8:00 AM',
-      participants: 15,
-      maxParticipants: 20,
-      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4',
-      organizer: { name: 'Mike Chen', avatar: '👨' },
-      isFavorite: true,
-    },
-    {
-      id: 3,
-      title: 'Study Group - Midterm Prep',
-      category: 'Study Together',
-      location: 'University Library',
-      date: 'May 14, 2026',
-      time: '2:00 PM',
-      participants: 6,
-      maxParticipants: 8,
-      image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1',
-      organizer: { name: 'Emma Lee', avatar: '👩' },
-      isFavorite: false,
-    },
-    {
-      id: 4,
-      title: 'Thai Food Cooking Night',
-      category: 'Eat Together',
-      location: 'Itaewon Community Kitchen',
-      date: 'May 16, 2026',
-      time: '7:00 PM',
-      participants: 10,
-      maxParticipants: 15,
-      image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d',
-      organizer: { name: 'Alex Park', avatar: '👨' },
-      isFavorite: false,
-    },
-    {
-      id: 5,
-      title: 'Morning Yoga in the Park',
-      category: 'Exercise',
-      location: 'Han River Park',
-      date: 'May 14, 2026',
-      time: '7:00 AM',
-      participants: 12,
-      maxParticipants: 20,
-      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b',
-      organizer: { name: 'Julia Martinez', avatar: '👩' },
-      isFavorite: true,
-    },
-    {
-      id: 6,
-      title: 'K-Pop Dance Cover Practice',
-      category: 'Hobbies',
-      location: 'Gangnam Dance Studio',
-      date: 'May 18, 2026',
-      time: '5:00 PM',
-      participants: 7,
-      maxParticipants: 10,
-      image: 'https://images.unsplash.com/photo-1547153760-18fc9498cfc6',
-      organizer: { name: 'David Kim', avatar: '👨' },
-      isFavorite: false,
-    },
-  ];
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await activityService.getAll();
+        setActivities(response.data.activities);
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchActivities();
+  }, []);
 
   const filteredActivities = activities.filter((activity) => {
     const matchesCategory = selectedCategory === 'All' || activity.category === selectedCategory;
     const matchesSearch =
       searchQuery === '' ||
-      activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.category.toLowerCase().includes(searchQuery.toLowerCase());
+      activity.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      activity.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      activity.category?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -141,14 +77,20 @@ export function FeedPage() {
         </div>
 
         {/* Activity Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-20 lg:mb-8">
-          {filteredActivities.map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-20 lg:mb-8">
+            {filteredActivities.map((activity) => (
+              <ActivityCard key={activity._id || activity.id} activity={activity} />
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
-        {filteredActivities.length === 0 && (
+        {!isLoading && filteredActivities.length === 0 && (
           <div className="text-center py-16">
             <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <Users size={40} className="text-muted-foreground" />

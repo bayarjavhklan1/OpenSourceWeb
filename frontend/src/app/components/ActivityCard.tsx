@@ -3,20 +3,21 @@ import { Users, MapPin, Calendar, Heart } from 'lucide-react';
 import { Link } from 'react-router';
 
 interface Activity {
-  id: number;
+  _id?: string;
+  id?: number;
   title: string;
   category: string;
   location: string;
   date: string;
   time: string;
-  participants: number;
+  participants: any[] | number;
   maxParticipants: number;
   image: string;
   organizer: {
     name: string;
     avatar: string;
   };
-  isFavorite: boolean;
+  isFavorite?: boolean;
 }
 
 interface ActivityCardProps {
@@ -24,13 +25,15 @@ interface ActivityCardProps {
 }
 
 export function ActivityCard({ activity }: ActivityCardProps) {
-  const [isFavorite, setIsFavorite] = useState(activity.isFavorite);
+  const [isFavorite, setIsFavorite] = useState(!!activity.isFavorite);
 
-  const participantPercentage = (activity.participants / activity.maxParticipants) * 100;
+  const numParticipants = Array.isArray(activity.participants) ? activity.participants.length : activity.participants;
+  const participantPercentage = (numParticipants / activity.maxParticipants) * 100;
+  const activityId = activity._id || activity.id;
 
   return (
     <div className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all">
-      <Link to={`/activity/${activity.id}`} className="block">
+      <Link to={`/activity/${activityId}`} className="block">
         <div className="relative h-48 overflow-hidden bg-muted">
           <div
             className="w-full h-full bg-cover bg-center group-hover:scale-110 transition-transform duration-300"
@@ -55,7 +58,7 @@ export function ActivityCard({ activity }: ActivityCardProps) {
       </Link>
 
       <div className="p-4">
-        <Link to={`/activity/${activity.id}`}>
+        <Link to={`/activity/${activityId}`}>
           <h3 className="font-semibold text-lg mb-3 group-hover:text-primary transition-colors line-clamp-2">
             {activity.title}
           </h3>
@@ -77,7 +80,7 @@ export function ActivityCard({ activity }: ActivityCardProps) {
           <div className="flex items-center justify-between text-sm mb-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Users size={16} />
-              <span>{activity.participants}/{activity.maxParticipants} joined</span>
+              <span>{numParticipants}/{activity.maxParticipants} joined</span>
             </div>
             <span className="text-xs font-medium">{Math.round(participantPercentage)}%</span>
           </div>
