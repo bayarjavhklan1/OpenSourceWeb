@@ -13,26 +13,27 @@ var adminRoute = require("./routes/admin.js");
 var app = express();
 
 app.use(cors());
-app.use(express.json());  // cors 다음에 json (순서 중요함)
+app.use(express.json()); // cors 다음에 json (순서 중요함)
 
 // public 폴더 정적파일 (admin.html 같은거)
 app.use(express.static(path.join(__dirname, "public")));
 
 // db 연결
-mongoose.connect("mongodb://localhost:27017/Open_Web_proj")
-.then(function(){
-  console.log("Connected to MongoDB database");
-})
-.catch(function(err){
-  console.log("db 연결 실패..", err);
-});
+mongoose
+  .connect("mongodb://localhost:27017/Open_Web_proj")
+  .then(function () {
+    console.log("Connected to MongoDB database");
+  })
+  .catch(function (err) {
+    console.log("db 연결 실패..", err);
+  });
 
 app.use("/auth", authRoute);
 app.use("/activities", actRoute);
 app.use("/chat", chatRoute);
 app.use("/admin", adminRoute);
 
-app.listen(5000, function() {
-  console.log("Server is running on port 5000");
-  console.log("admin page : http://localhost:5000/admin.html");
+app.listen(5001, function () {
+  console.log("Server is running on port 5001");
+  console.log("admin page : http://localhost:5001/admin.html");
 });
