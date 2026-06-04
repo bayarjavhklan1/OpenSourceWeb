@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Upload, MapPin, Calendar, Users, Type, AlignLeft, Tag, ChevronLeft, Sparkles, Loader2 } from 'lucide-react';
+import { Upload, MapPin, Calendar, Users, Type, AlignLeft, Tag, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router';
 
 export function CreateActivityPage() {
@@ -15,10 +15,6 @@ export function CreateActivityPage() {
   const [duration, setDuration] = useState('');
   const [maxParticipants, setMaxParticipants] = useState('');
 
-  // AI 자동완성용 상태
-  const [hint, setHint] = useState('');
-  const [loading, setLoading] = useState(false);
-
   const categories = [
     'Study Together',
     'Eat Together',
@@ -29,33 +25,6 @@ export function CreateActivityPage() {
     'Social Events',
     'Other',
   ];
-
-  // AI 자동완성 버튼: 한 줄 힌트를 서버로 보내고, 받은 내용으로 입력칸을 채운다.
-  const handleAISuggest = () => {
-    if (!hint.trim() || loading) return;
-    setLoading(true);
-
-    fetch('http://localhost:5000/activities/ai-suggest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hint: hint })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setLoading(false);
-        if (!data.success) {
-          alert('자동완성에 실패했어요. 다시 시도해주세요.');
-          return;
-        }
-        const r = data.data;
-        setTitle(r.title || '');
-        setSelectedCategory(r.category || '');
-        setDescription(r.description || '');
-        setLocation(r.location || '');
-        setDuration(r.duration || '');
-        setMaxParticipants(String(r.maxParticipants || ''));
-      });
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,35 +64,6 @@ export function CreateActivityPage() {
           <div>
             <h1 className="text-3xl font-bold">Create Activity</h1>
             <p className="text-muted-foreground">Share your plans with the community</p>
-          </div>
-        </div>
-
-        {/* AI 자동완성 카드 */}
-        <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-6 mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles size={18} className="text-primary" />
-            <span className="font-semibold text-primary">AI 자동완성</span>
-          </div>
-          <p className="text-sm text-muted-foreground mb-3">
-            한 줄로 아이디어를 적으면 AI가 제목·설명·장소·인원을 채워드려요.
-          </p>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={hint}
-              onChange={(e) => setHint(e.target.value)}
-              placeholder="예: 홍대 카페에서 영어·한국어 교환, 초보 환영"
-              className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-            />
-            <button
-              type="button"
-              onClick={handleAISuggest}
-              disabled={!hint.trim() || loading}
-              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-              {loading ? '생성 중...' : '자동완성'}
-            </button>
           </div>
         </div>
 

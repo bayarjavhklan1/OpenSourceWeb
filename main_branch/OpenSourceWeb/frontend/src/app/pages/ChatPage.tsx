@@ -13,8 +13,6 @@ import {
   MicOff,
   X,
   MessageCircle,
-  Globe,
-  Loader2,
 } from "lucide-react";
 
 // 5초마다 새 메시지 물어보는데(폴링), 마지막으로 받은 번호랑 지금까지 받은 메시지를
@@ -30,7 +28,6 @@ export function ChatPage() {
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
-  const [trans, setTrans] = useState<any>({}); // 메시지별 번역결과 담는곳
   const myName = "나";
 
   // 서버에서 새 메시지 받아와서 화면에 더하기
@@ -74,43 +71,6 @@ export function ChatPage() {
   const selectedConversation = chatId
     ? conversations.find((c) => c.id === chatId)
     : conversations[0];
-
-  // 번역버튼 눌렀을때
-  const handleTranslate = (msgId: string) => {
-    const cur = trans[msgId];
-
-    // 이미 보이는중이면 숨기기
-    if (cur && cur.visible) {
-      setTrans({ ...trans, [msgId]: { ...cur, visible: false } });
-      return;
-    }
-    // 전에 받아둔거 있으면 그냥 다시 보여줌
-    if (cur && cur.translation) {
-      setTrans({ ...trans, [msgId]: { ...cur, visible: true } });
-      return;
-    }
-
-    // 처음 번역 -> 서버에 요청
-    setTrans({ ...trans, [msgId]: { translation: "", cultural_notes: [], loading: true, visible: true } });
-
-    fetch("http://localhost:5000/chat/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messageId: msgId }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setTrans((prev: any) => ({
-          ...prev,
-          [msgId]: {
-            translation: data.translation || "번역 실패",
-            cultural_notes: data.cultural_notes || [],
-            loading: false,
-            visible: true,
-          },
-        }));
-      });
-  };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,7 +200,6 @@ export function ChatPage() {
                 const isMe = msg.sender_name === myName;
                 const d = new Date(msg.created_at);
                 const timeStr = d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes();
-                const t = trans[msg._id];
 
                 return (
                   <div key={msg._id} className={`flex gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
@@ -254,33 +213,8 @@ export function ChatPage() {
                         <p className="text-sm leading-relaxed">{msg.message_text}</p>
                       </div>
 
-                      {/* 번역 패널 */}
-                      {t && t.visible && (
-                        <div className="mt-1 px-3 py-2 bg-muted/80 border border-border rounded-xl text-xs text-foreground">
-                          {t.loading ? (
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <Loader2 size={12} className="animate-spin" /> Translating...
-                            </span>
-                          ) : (
-                            <div>
-                              <p className="font-medium">{t.translation}</p>
-                              {t.cultural_notes.map((note: string, i: number) => (
-                                <p key={i} className="text-muted-foreground mt-1">• {note}</p>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
                       <div className="flex items-center gap-2 mt-1 px-2">
                         <p className="text-xs text-muted-foreground">{timeStr}</p>
-                        <button
-                          onClick={() => handleTranslate(msg._id)}
-                          className={`flex items-center gap-0.5 text-xs transition-colors ${t && t.visible ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
-                        >
-                          <Globe size={11} />
-                          <span>번역</span>
-                        </button>
                       </div>
                     </div>
                   </div>

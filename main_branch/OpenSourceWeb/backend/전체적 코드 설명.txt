@@ -184,6 +184,78 @@ error msg는 console.log으로 바꿈
 메세지 전송 -> 서버에 저장 -> 바로 새 메시지 불러오기 
 화면 표시 -> 내 메시지 : 오른쪽 파란색, 상대 메시지 : 왼쪽 흰 말풍선 
 화면 <-> 서버 <-> MongoDB(창고) 
-Chat.js : DB 설계 부분(room 번호, 사람, 내용, 시간)
 
-React -> Mapin,clock
+1. 
+models/Chat.js : DB 설계 부분(room 번호, 사람, 내용, 시간)
+ㄴ 스키마 부분 
+
+2. 
+server에 route 뚫기 :| /chat로 시작  -> chat.js ->  채팅
+ㄴ   Chat.find(query).sort({ created_at: 1 }) => Chat 객체에서 들어온 query값에서 찾기 created_at : 1(오름차순)
+ㄴ   Mongoose의 문법
+query._id = { $gt: lastId }; //_id > lastId (초과)
+handleSendMessage에 fetch 추가 -> GeT -> db 저장 -> 
+json 응답 -> setMessages() => 배열로 받고 express lib의 timer interval을 통하여 구현 
+즉 받고 5초마다 loadMessage -> 서버 GET -> /messages -> DB 조회 -> 새 것만 응답 -> 화면에 붙이기 
+ㄴ 새것은 react lib에서 current 사용 
+
+
+useEffect(function() {
+  setMessages([]);        // 기존 내용 지우기 
+  lastIdRef.current = ''; // 번호 초기화 
+  loadMessages('');       // 내용 처음부터 가져오기 
+
+  var timer = setInterval(function() {
+    loadMessages(lastIdRef.current); // 5초마다 내용 갱신 
+  }, 5000);
+
+  return function() { clearInterval(timer); }; // 나가면 타이머 중지 
+}, [chatId]);
+
+문제점 : 
+메세지 분리 현상 발생 
+ㄴ prev에 concat이 안되있어서 추가 setMessages(function(prev) { return prev.concat(data)
+
+순서가 굉장히 중요함 -> 이거 때문에 고생함 
+ㄴ 마지막 번호를 기억하고 그걸 나중에 +1 해서 가져오는 형식으로 구현함 
+
+메시지가 나오면 그게 tracking 되어야하는데 안되는 문제 발생
+
+
+코드 짜면서 문제가 났던 곳 : 
+
+
+1. 
+app.use(cors());
+app.use(express.json());
+ㄴ 미들웨어 통과가 순서대로 진행되야 작동 
+
+
+admin 코드 : 
+email : 아무거나 
+password : ADMIN1234
+
+계절학기 기숙사 신청 
+
+
+1. 
+profilepage 정적인거라 아직 수정이 안됨 
+ㄴ 정적이라 수정해도 다시 껏다 키면 정적 data로 됨 
++ 로그인 하면 로그인에 알맞는 프로필 아직 안뜸 -> 연결을 안했음 
+
+2. activitiy page 
+검색 0
+필터링 0
+추가는 db에는 안되는데 frontend에 됨 (연결 아지 안됨)
+ㄴ 관리자 routing 아직 안됨 
+
+3.
+채팅창 : fom -> 페이지 전체 새로고침 
+입력 텍스트 다 사리지고, 화면 깜박임 
+ㄴ fetch가 작동을 안함 -> e.preventDefault();로 해결 
+
+4. login -> 실행되서 서버에 정보 저장 잘됨 
+ㄴ 근데 frontend 아직 연결을 안해서 개인 정보 프로필에 안뜸 (연결해야함) 
+
+아마 아직 정적인 요소 제거를 안해서 그럼 
+

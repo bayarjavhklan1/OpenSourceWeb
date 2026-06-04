@@ -4,7 +4,7 @@ var Activity = require("../models/Activity.js");
 
 var router = express.Router();
 
-// ===== 회원 =====
+// 회원 
 
 // 회원목록 (이름/이메일 검색됨)
 router.get("/users", function(req, res) {
