@@ -13,6 +13,25 @@ export function AuthPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const staticUser = {
+      name: "Demo Student",
+      email: "demo@connect.com",
+      avatar: "🎓"
+    };
+
+    // If static demo credentials entered, log in directly without backend
+    if (isLogin && email === "demo@connect.com" && password === "password") {
+      localStorage.setItem("user", JSON.stringify(staticUser));
+      localStorage.setItem("profile", JSON.stringify({
+        avatar: "🎓",
+        bio: "I am a study abroad student looking to connect with others!",
+        location: "Seoul, Korea",
+        interests: ["Language Exchange", "Study Together", "Hobbies"]
+      }));
+      navigate("/feed");
+      return;
+    }
+
     if (isLogin) {
       fetch("http://localhost:5001/auth/login", {
         method: "POST",
@@ -27,6 +46,16 @@ export function AuthPage() {
           }
           localStorage.setItem("user", JSON.stringify(r.user));
           navigate("/feed");
+        })
+        .catch((err) => {
+          console.warn("Backend not running. Using fallback static user.", err);
+          // Fallback static user login when server is offline
+          localStorage.setItem("user", JSON.stringify({
+            name: "Demo Student",
+            email: email,
+            avatar: "🎓"
+          }));
+          navigate("/feed");
         });
     } else {
       fetch("http://localhost:5001/auth/register", {
@@ -40,9 +69,20 @@ export function AuthPage() {
             alert(r.message);
             return;
           }
+          localStorage.setItem("user", JSON.stringify({ name: name, email: email, avatar: "🎓" }));
+          navigate("/feed");
+        })
+        .catch((err) => {
+          console.warn("Backend not running. Using register fallback.", err);
+          localStorage.setItem("user", JSON.stringify({ name: name, email: email, avatar: "🎓" }));
           navigate("/feed");
         });
     }
+  };
+
+  const handleDemoLogin = () => {
+    setEmail("demo@connect.com");
+    setPassword("password");
   };
 
   return (
@@ -156,6 +196,23 @@ export function AuthPage() {
               {isLogin ? "Login" : "Create Account"}
             </button>
           </form>
+
+          {isLogin && (
+            <div className="mt-4 p-4 rounded-xl bg-secondary/30 border border-primary/20 text-xs space-y-2">
+              <p className="font-semibold text-foreground">💡 Static Demo Account:</p>
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Email: <code className="bg-card px-1 py-0.5 rounded border border-border text-foreground font-mono">demo@connect.com</code></span>
+                <span>Password: <code className="bg-card px-1 py-0.5 rounded border border-border text-foreground font-mono">password</code></span>
+              </div>
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                className="w-full mt-2 py-1.5 px-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-all text-center"
+              >
+                Auto-fill Demo Credentials
+              </button>
+            </div>
+          )}
 
           {/* Toggle Auth Mode */}
           <p className="text-center text-sm text-muted-foreground mt-6">

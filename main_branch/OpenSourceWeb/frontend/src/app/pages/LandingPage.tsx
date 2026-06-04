@@ -16,6 +16,14 @@ export function LandingPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("profile");
+    setIsLoggedIn(false);
+    navigate("/");
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,18 +112,31 @@ export function LandingPage() {
               >
                 Activities
               </Link>
-              <Link
-                to="/auth"
-                className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                to="/auth"
-                className="px-6 py-2 bg-primary text-primary-foreground rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
-              >
-                Sign Up
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <button
+                    onClick={handleLogout}
+                    className="px-6 py-2 bg-primary text-primary-foreground rounded-xl font-semibold shadow-md hover:shadow-lg transition-all hover:opacity-90 cursor-pointer"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/auth"
+                    className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/auth"
+                    className="px-6 py-2 bg-primary text-primary-foreground rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </nav>
 
             {/* Mobile Menu Button */}
@@ -142,18 +163,31 @@ export function LandingPage() {
               >
                 Activities
               </Link>
-              <Link
-                to="/auth"
-                className="block px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                to="/auth"
-                className="block mx-4 px-6 py-2 bg-primary text-primary-foreground rounded-xl font-semibold text-center"
-              >
-                Sign Up
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <button
+                    onClick={handleLogout}
+                    className="mx-4 text-red-500 hover:text-red-600 transition-colors cursor-pointer"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/auth"
+                    className="block px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/auth"
+                    className="block mx-4 px-6 py-2 bg-primary text-primary-foreground rounded-xl font-semibold text-center"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -195,10 +229,10 @@ export function LandingPage() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
-                to="/auth"
+                to={isLoggedIn ? "/feed" : "/auth"}
                 className="px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105"
               >
-                Join Now
+                {isLoggedIn ? "Explore Feed" : "Join Now"}
               </Link>
               <Link
                 to="/create"
@@ -304,10 +338,10 @@ export function LandingPage() {
             memories in Korea
           </p>
           <Link
-            to="/auth"
+            to={isLoggedIn ? "/feed" : "/auth"}
             className="inline-block px-8 py-4 bg-white text-primary rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105"
           >
-            Get Started - It's Free
+            {isLoggedIn ? "Explore Activities" : "Get Started - It's Free"}
           </Link>
         </div>
       </section>
