@@ -13,7 +13,7 @@
     .modal-box { background: #fff; width: 400px; margin: 80px auto; padding: 20px; border: 1px solid #ccc; }
     .form-row { margin-bottom: 8px; }
     .form-row label { display: block; }
-    .form-row input, .form-row textarea { width: 100%; box-sizing: border-box; }
+    .form-row input, .form-row textarea { width: 100%; }
   </style>
 </head>
 <body>
@@ -309,7 +309,8 @@
 
     function deleteActivity(d) {
       if (!confirm('이 모임을 삭제할까요? 되돌릴 수 없어요.')) return;
-      fetch(SERVER + '/admin/activities/' + d, { method: 'DELETE' }).then(function(r) {
+      fetch(SERVER + '/admin/activities/' + d, { method: 'DELETE' })
+      .then(function(r) {
         return r.json();
       }).then(function(result) {
         showMsg(result.message, !result.success);

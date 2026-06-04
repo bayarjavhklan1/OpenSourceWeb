@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router";
-
 
 export function ChatPage() {
-  const { chatId } = useParams();
+ 
+  const [activeChatId, setActiveChatId] = useState<string>(""); 
+  
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
   const lastIdRef = useRef('');
   const myName = 'Me';
 
+
   function loadMessages(currentLastId: string) {
-    var room = chatId || '1';
+    var room = activeChatId || '1';
     var url = 'http://localhost:5000/chat/messages?room=' + room;
     if (currentLastId) {
       url = url + '&lastId=' + currentLastId;
@@ -21,7 +22,7 @@ export function ChatPage() {
       .then(function(data) {
         if (data.length > 0) {
           setMessages(function(prev) { return prev.concat(data); });
-          lastIdRef.current = data[data.length - 1]._id;
+          lastIdRef.current = data[data.length - 1]._id; 
         }
       });
   }
@@ -36,50 +37,19 @@ export function ChatPage() {
     }, 5000);
 
     return function() { clearInterval(timer); };
-  }, [chatId]);
+  }, [activeChatId]);
+
+  
 
   const conversations = [
-    {
-      id: "1",
-      name: "Emma Wilson",
-      avatar: "👩",
-      lastMessage: "See you tomorrow at the cafe!",
-      time: "2m ago",
-      unread: 2,
-      online: true,
-    },
-    {
-      id: "2",
-      name: "Marco Silva",
-      avatar: "👨",
-      lastMessage: "Thanks for organizing!",
-      time: "1h ago",
-      unread: 0,
-      online: true,
-    },
-    {
-      id: "3",
-      name: "Yuki Tanaka",
-      avatar: "👩",
-      lastMessage: "What time should we meet?",
-      time: "3h ago",
-      unread: 1,
-      online: false,
-    },
-    {
-      id: "group-1",
-      name: "Korean Language Exchange",
-      avatar: "🗣️",
-      lastMessage: "Sarah: Looking forward to it!",
-      time: "5h ago",
-      unread: 5,
-      online: false,
-      isGroup: true,
-    },
+    { id: "1", name: "Emma Wilson", avatar: "👩", lastMessage: "See you tomorrow at the cafe!", time: "2m ago", unread: 2, online: true },
+    { id: "2", name: "Marco Silva", avatar: "👨", lastMessage: "Thanks for organizing!", time: "1h ago", unread: 0, online: true },
+    { id: "3", name: "Yuki Tanaka", avatar: "👩", lastMessage: "What time should we meet?", time: "3h ago", unread: 1, online: false },
+    { id: "group-1", name: "Korean Language Exchange", avatar: "🗣️", lastMessage: "Sarah: Looking forward to it!", time: "5h ago", unread: 5, online: false, isGroup: true },
   ];
 
-  const selectedConversation = chatId
-    ? conversations.find((c) => c.id === chatId)
+  const selectedConversation = activeChatId
+    ? conversations.find((c) => c.id === activeChatId)
     : conversations[0];
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -90,7 +60,7 @@ export function ChatPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_room: chatId || '1',
+        chat_room: activeChatId || '1', // activeChatId 사용
         sender_name: myName,
         message_text: messageInput
       })
@@ -108,16 +78,13 @@ export function ChatPage() {
         {/* Conversations List */}
         <div
           className={`${
-            chatId ? "hidden lg:flex" : "flex"
+            activeChatId ? "hidden lg:flex" : "flex"
           } w-full lg:w-80 xl:w-96 flex-col border-r border-border bg-card`}
         >
           {/* Search Header */}
           <div className="p-4 border-b border-border">
-            <h1 className="text-2xl font-bold mb-4">
-              Messages
-            </h1>
+            <h1 className="text-2xl font-bold mb-4">Messages</h1>
             <div className="relative">
-             
               <input
                 type="text"
                 placeholder="Search conversations..."
@@ -129,13 +96,12 @@ export function ChatPage() {
           {/* Conversation List */}
           <div className="flex-1 overflow-y-auto">
             {conversations.map((conversation) => (
-              <Link
+              /* Link 컴포넌트 대신 일반 button을 쓰고, onClick으로 상태를 변경하도록 수정 */
+              <button
                 key={conversation.id}
-                to={`/chat/${conversation.id}`}
-                className={`flex items-center gap-3 p-4 hover:bg-muted transition-all border-b border-border ${
-                  selectedConversation?.id === conversation.id
-                    ? "bg-secondary"
-                    : ""
+                onClick={() => setActiveChatId(conversation.id)}
+                className={`w-full text-left flex items-center gap-3 p-4 hover:bg-muted transition-all border-b border-border ${
+                  selectedConversation?.id === conversation.id ? "bg-secondary" : ""
                 }`}
               >
                 <div className="relative flex-shrink-0">
@@ -148,17 +114,11 @@ export function ChatPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold truncate">
-                      {conversation.name}
-                    </h3>
-                    <span className="text-xs text-muted-foreground">
-                      {conversation.time}
-                    </span>
+                    <h3 className="font-semibold truncate">{conversation.name}</h3>
+                    <span className="text-xs text-muted-foreground">{conversation.time}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground truncate">
-                      {conversation.lastMessage}
-                    </p>
+                    <p className="text-sm text-muted-foreground truncate">{conversation.lastMessage}</p>
                     {conversation.unread > 0 && (
                       <div className="ml-2 w-5 h-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">
                         {conversation.unread}
@@ -166,22 +126,24 @@ export function ChatPage() {
                     )}
                   </div>
                 </div>
-              </Link>
+              </button>
             ))}
           </div>
         </div>
 
         {/* Chat Area */}
-        {chatId || selectedConversation ? (
+        {activeChatId || selectedConversation ? (
           <div className="flex-1 flex flex-col bg-background">
             {/* Chat Header */}
             <div className="p-4 border-b border-border bg-card flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Link
-                  to="/chat"
+                {/* 뒤로가기 버튼 클릭 시 activeChatId를 비워줌 (목록으로 돌아가기) */}
+                <button
+                  onClick={() => setActiveChatId("")}
                   className="lg:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted"
                 >
-                </Link>
+                  ◀
+                </button>
                 <div className="relative">
                   <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-xl">
                     {selectedConversation?.avatar}
@@ -191,21 +153,11 @@ export function ChatPage() {
                   )}
                 </div>
                 <div>
-                  <h2 className="font-semibold">
-                    {selectedConversation?.name}
-                  </h2>
+                  <h2 className="font-semibold">{selectedConversation?.name}</h2>
                   <p className="text-xs text-muted-foreground">
-                    {selectedConversation?.online
-                      ? "Active now"
-                      : "Offline"}
+                    {selectedConversation?.online ? "Active now" : "Offline"}
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {/* 수화기 버튼과 비디오 버튼 레이아웃은 유지하되 에러 유발 코드 제거 */}
-                <button className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground transition-all">
-      
-                </button>
               </div>
             </div>
 
@@ -239,16 +191,11 @@ export function ChatPage() {
 
             {/* Message Input */}
             <div className="p-4 border-t border-border bg-card">
-              <form
-                onSubmit={handleSendMessage}
-                className="flex gap-3"
-              >
+              <form onSubmit={handleSendMessage} className="flex gap-3">
                 <input
                   type="text"
                   value={messageInput}
-                  onChange={(e) =>
-                    setMessageInput(e.target.value)
-                  }
+                  onChange={(e) => setMessageInput(e.target.value)}
                   placeholder="Type a message..."
                   className="flex-1 px-4 py-3 bg-muted rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
@@ -257,7 +204,7 @@ export function ChatPage() {
                   disabled={!messageInput.trim()}
                   className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                 
+                  ส่ง
                 </button>
               </form>
             </div>
@@ -265,16 +212,9 @@ export function ChatPage() {
         ) : (
           <div className="hidden lg:flex flex-1 items-center justify-center bg-background">
             <div className="text-center">
-              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                
-              </div>
-              <h3 className="text-xl font-semibold mb-2">
-                Select a conversation
-              </h3>
-              <p className="text-muted-foreground">
-                Choose a conversation from the list to start
-                chatting
-              </p>
+              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4"></div>
+              <h3 className="text-xl font-semibold mb-2">Select a conversation</h3>
+              <p className="text-muted-foreground">Choose a conversation from the list to start chatting</p>
             </div>
           </div>
         )}
