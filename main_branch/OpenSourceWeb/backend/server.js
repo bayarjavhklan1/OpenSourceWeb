@@ -1,3 +1,6 @@
+require("dotenv").config();
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 // 서버 시작하는 파일
 var express = require("express");
 var mongoose = require("mongoose");
@@ -20,7 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // db 연결
 mongoose
-  .connect("mongodb://localhost:27017/Open_Web_proj")
+.connect(process.env.MONGO_URI)
   .then(function () {
     console.log("Connected to MongoDB database");
   })

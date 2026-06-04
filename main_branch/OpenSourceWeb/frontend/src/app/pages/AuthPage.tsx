@@ -14,7 +14,7 @@ export function AuthPage() {
     e.preventDefault();
 
     if (isLogin) {
-      fetch("http://localhost:5000/auth/login", {
+      fetch("http://localhost:5001/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email, password: password }),
@@ -29,7 +29,7 @@ export function AuthPage() {
           navigate("/feed");
         });
     } else {
-      fetch("http://localhost:5000/auth/register", {
+      fetch("http://localhost:5001/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name, email: email, password: password }),
