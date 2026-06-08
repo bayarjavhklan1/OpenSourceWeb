@@ -12,11 +12,13 @@ var authRoute = require("./routes/auth.js");
 var actRoute = require("./routes/activity.js");
 var chatRoute = require("./routes/chat.js");
 var adminRoute = require("./routes/admin.js");
+var translateRoute = require("./routes/translate.js");//add
 
 var app = express();
 
 app.use(cors());
 app.use(express.json()); // cors 다음에 json (순서 중요함)
+app.use("/translate", translateRoute); //add
 
 // public 폴더 정적파일 (admin.html 같은거)
 app.use(express.static(path.join(__dirname, "public")));

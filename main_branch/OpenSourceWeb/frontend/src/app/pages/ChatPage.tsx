@@ -29,11 +29,14 @@ export function ChatPage() {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const myName = "나";
+  const [translations, setTranslations] = useState<{[key: string]: string}>({});
+const [targetLang, setTargetLang] = useState("en");
+const [sourceLang, setSourceLang] = useState("en");
 
   // 서버에서 새 메시지 받아와서 화면에 더하기
   function loadMsg() {
     let room = chatId || "1";
-    let url = "http://localhost:5000/chat/messages?room=" + room;
+    let url = "http://localhost:5001/chat/messages?room=" + room;
     if (lastId) url = url + "&lastId=" + lastId;
 
     fetch(url)
@@ -71,12 +74,27 @@ export function ChatPage() {
   const selectedConversation = chatId
     ? conversations.find((c) => c.id === chatId)
     : conversations[0];
-
+// Translate a message using our backend translate API
+  function translateMessage(messageId: string, text: string) {
+    fetch("http://localhost:5001/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text, from: sourceLang, to: targetLang }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setTranslations((prev) => ({ ...prev, [messageId]: data.translatedText }));
+        } else {
+          alert("Translation failed");
+        }
+      });
+  }
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!messageInput.trim()) return;
 
-    fetch("http://localhost:5000/chat/send", {
+    fetch("http://localhost:5001/chat/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_room: chatId || "1", sender_name: myName, message_text: messageInput }),
@@ -182,6 +200,24 @@ export function ChatPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <select
+                  value={sourceLang}
+                  onChange={(e) => setSourceLang(e.target.value)}
+                  className="px-2 py-1 bg-muted rounded-lg text-sm border border-border focus:outline-none"
+                >
+                  <option value="en">From: EN</option>
+                  <option value="ko">From: KO</option>
+                  <option value="mn">From: MN</option>
+                </select>
+                <select
+                  value={targetLang}
+                  onChange={(e) => setTargetLang(e.target.value)}
+                  className="px-2 py-1 bg-muted rounded-lg text-sm border border-border focus:outline-none"
+                >
+                  <option value="en">To: EN</option>
+                  <option value="ko">To: KO</option>
+                  <option value="mn">To: MN</option>
+                </select>
                 <button onClick={() => startCall("voice")} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground transition-all">
                   <Phone size={20} />
                 </button>
@@ -203,7 +239,7 @@ export function ChatPage() {
 
                 return (
                   <div key={msg._id} className={`flex gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
-                    {!isMe && (
+{!isMe && (
                       <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg flex-shrink-0">
                         {selectedConversation?.avatar}
                       </div>
@@ -211,8 +247,20 @@ export function ChatPage() {
                     <div className={`max-w-xs lg:max-w-md xl:max-w-lg ${isMe ? "items-end" : "items-start"} flex flex-col`}>
                       <div className={`px-4 py-2 rounded-2xl ${isMe ? "bg-primary text-primary-foreground rounded-br-md" : "bg-card border border-border rounded-bl-md"}`}>
                         <p className="text-sm leading-relaxed">{msg.message_text}</p>
+                        {translations[msg._id] && (
+                          <p className="text-xs mt-2 pt-2 border-t border-white/20 italic opacity-80">
+                            🌐 {translations[msg._id]}
+                          </p>
+                        )}
+                        {!translations[msg._id] && (
+                          <button
+                            onClick={() => translateMessage(msg._id, msg.message_text)}
+                            className="text-xs mt-1 opacity-60 hover:opacity-100 underline"
+                          >
+                            Translate
+                          </button>
+                        )}
                       </div>
-
                       <div className="flex items-center gap-2 mt-1 px-2">
                         <p className="text-xs text-muted-foreground">{timeStr}</p>
                       </div>
@@ -232,6 +280,15 @@ export function ChatPage() {
                   placeholder="Type a message..."
                   className="flex-1 px-4 py-3 bg-muted rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
+                <select
+  value={targetLang}
+  onChange={(e) => setTargetLang(e.target.value)}
+  className="px-2 py-1 bg-muted rounded-lg text-sm border border-border focus:outline-none"
+>
+  <option value="en">EN</option>
+  <option value="ko">KO</option>
+  <option value="mn">MN</option>
+</select>
                 <button
                   type="submit"
                   disabled={!messageInput.trim()}
