@@ -1,10 +1,11 @@
 // 예시데이터 넣는 파일 (비어있을때만 모임 6개 넣음)
 // 실행: node seed.js
-
+// 이건 예시 데이터 놓는 방식으로 사실 실행을 안해도 된다. 
 var mongoose = require("mongoose");
 var Activity = require("./models/Activity.js");
 
-mongoose.connect("mongodb://localhost:27017/Open_Web_proj").then(function() {
+mongoose.connect("mongodb://localhost:27017/Open_Web_proj")
+.then(function() {
   console.log("Connected to MongoDB database");
 });
 

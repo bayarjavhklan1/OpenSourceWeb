@@ -12,7 +12,8 @@ router.post("/send", function(req, res) {
   });
 
   // INSERT INTO chats (...) VALUES (...)
-  msg.save().then(function() {
+  msg.save()
+  .then(function() {
     res.json({ success: true });
   });
 });
@@ -27,8 +28,9 @@ router.get("/messages", function(req, res) {
     cond._id = { $gt: lastId };  // _id 가 lastId 보다 큰거 = 그 이후 새 메시지만
   }
 
-  // SELECT * FROM chats WHERE chat_room=? [AND _id>?] ORDER BY created_at ASC
-  Chat.find(cond).sort({ created_at: 1 }).then(function(arr) {
+  // SELECT * FROM chats WHERE chat_room=? [AND _id>?] ORDER BY created_at ASC 문법을 Moogoo DB로 바꿈 
+  Chat.find(cond).sort({ created_at: 1 })
+  .then(function(arr) {
     res.json(arr);
   });
 });
