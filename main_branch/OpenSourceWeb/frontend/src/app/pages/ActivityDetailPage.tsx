@@ -1,68 +1,138 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router';
-import { MapPin, Calendar, Users, Heart, Share2, MessageCircle, ChevronLeft, Clock } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router";
+import axios from "axios";
+import {
+  MapPin,
+  Calendar,
+  Users,
+  Heart,
+  Share2,
+  MessageCircle,
+  ChevronLeft,
+  Clock,
+} from "lucide-react";
+
+const API = "http://localhost:5001";
 
 export function ActivityDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [activity, setActivity] = useState<any>(null);
   const [isJoined, setIsJoined] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [activity, setActivity] = useState<any>(null);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const userRaw = localStorage.getItem("user");
+  const currentUser = userRaw ? JSON.parse(userRaw) : null; // null if not logged in
+
+  const requireAuth = (action: () => void) => {
+    if (!currentUser) {
+      navigate("/auth");
+      return;
+    }
+    action();
+  };
 
   useEffect(() => {
-    fetch('http://localhost:5000/activities/' + id)
-      .then(res => res.json())
-      .then(data => setActivity(data));
+    axios
+      .get(`${API}/activities/${id}`)
+      .then((res) => {
+        setActivity(res.data);
+        const alreadyJoined = res.data.members?.some(
+          (m: any) => m.name === currentUser?.name,
+        );
+        setIsJoined(alreadyJoined);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  if (!activity) {
-    return <div className="min-h-screen flex items-center justify-center">불러오는 중...</div>;
+  const handleJoin = () => {
+    requireAuth(async () => {
+      const action = isJoined ? "leave" : "join";
+      const member = {
+        name: currentUser.name,
+        avatar: currentUser.avatar || "😊",
+        country: currentUser.country || "Unknown",
+      };
+      try {
+        const res = await axios.post(`${API}/activities/${id}/join`, {
+          member,
+          action,
+        });
+        setActivity(res.data);
+        setIsJoined(!isJoined);
+      } catch (err) {
+        console.error("Join error:", err);
+      }
+    });
+  };
+
+  const handleComment = () => {
+    requireAuth(async () => {
+      if (!comment.trim()) return;
+      try {
+        const res = await axios.post(`${API}/activities/${id}/comments`, {
+          user: { name: currentUser.name, avatar: currentUser.avatar || "😊" },
+          text: comment,
+        });
+        setActivity((prev: any) => ({ ...prev, comments: res.data }));
+        setComment("");
+      } catch (err) {
+        console.error("Comment error:", err);
+      }
+    });
+  };
+
+  const handleMessage = () => {
+    requireAuth(() => {
+      navigate(`/chat/organizer-${id}`);
+    });
+  };
+
+  const formatTime = (time: string) => {
+    if (!time) return "";
+    const diff = Math.floor((Date.now() - new Date(time).getTime()) / 60000);
+    if (diff < 1) return "just now";
+    if (diff < 60) return `${diff} minutes ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)} hours ago`;
+    return `${Math.floor(diff / 1440)} days ago`;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground text-sm">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
-  const members = [
-    { id: 1, name: 'Sarah Kim', avatar: '👩', country: 'USA' },
-    { id: 2, name: 'Yuki Tanaka', avatar: '👩', country: 'Japan' },
-    { id: 3, name: 'Marco Silva', avatar: '👨', country: 'Brazil' },
-    { id: 4, name: 'Emma Wilson', avatar: '👩', country: 'UK' },
-    { id: 5, name: 'Chen Wei', avatar: '👨', country: 'China' },
-    { id: 6, name: 'Anna Müller', avatar: '👩', country: 'Germany' },
-    { id: 7, name: 'Omar Hassan', avatar: '👨', country: 'Egypt' },
-    { id: 8, name: 'Lisa Park', avatar: '👩', country: 'Canada' },
-  ];
+  if (!activity) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Activity not found.</p>
+      </div>
+    );
+  }
 
-  const comments = [
-    {
-      id: 1,
-      user: { name: 'Emma Wilson', avatar: '👩' },
-      text: 'This sounds amazing! Can beginners join?',
-      time: '2 hours ago',
-      replies: [
-        {
-          id: 11,
-          user: { name: 'Sarah Kim', avatar: '👩' },
-          text: 'Absolutely! All levels are welcome 😊',
-          time: '1 hour ago',
-        },
-      ],
-    },
-    {
-      id: 2,
-      user: { name: 'Marco Silva', avatar: '👨' },
-      text: 'Looking forward to this! See everyone there!',
-      time: '5 hours ago',
-    },
-  ];
+  const spotsLeft = activity.maxParticipants - activity.participants;
 
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-8">
       {/* Header Image */}
       <div className="relative h-56 sm:h-64 lg:h-96 bg-muted">
-        <div
-          className="w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${activity.image})` }}
-        />
+        {activity.image && (
+          <div
+            className="w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${activity.image})` }}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-        {/* Back Button */}
         <Link
           to="/feed"
           className="absolute top-4 left-4 w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-transform"
@@ -70,7 +140,6 @@ export function ActivityDetailPage() {
           <ChevronLeft size={20} className="text-foreground" />
         </Link>
 
-        {/* Action Buttons */}
         <div className="absolute top-4 right-4 flex gap-2">
           <button
             onClick={() => setIsFavorite(!isFavorite)}
@@ -78,7 +147,7 @@ export function ActivityDetailPage() {
           >
             <Heart
               size={20}
-              className={`${isFavorite ? 'fill-primary text-primary' : 'text-muted-foreground'} transition-colors`}
+              className={`${isFavorite ? "fill-primary text-primary" : "text-muted-foreground"} transition-colors`}
             />
           </button>
           <button className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-transform">
@@ -86,7 +155,6 @@ export function ActivityDetailPage() {
           </button>
         </div>
 
-        {/* Category Badge */}
         <div className="absolute bottom-4 left-4 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium">
           {activity.category}
         </div>
@@ -107,7 +175,9 @@ export function ActivityDetailPage() {
                   </div>
                   <div>
                     <p className="font-medium">{activity.location}</p>
-                    <p className="text-sm text-muted-foreground">{activity.address}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {activity.address}
+                    </p>
                   </div>
                 </div>
 
@@ -117,7 +187,9 @@ export function ActivityDetailPage() {
                   </div>
                   <div>
                     <p className="font-medium">{activity.date}</p>
-                    <p className="text-sm text-muted-foreground">{activity.time}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {activity.time}
+                    </p>
                   </div>
                 </div>
 
@@ -127,7 +199,9 @@ export function ActivityDetailPage() {
                   </div>
                   <div>
                     <p className="font-medium">Duration</p>
-                    <p className="text-sm text-muted-foreground">{activity.duration}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {activity.duration || "—"}
+                    </p>
                   </div>
                 </div>
 
@@ -136,8 +210,12 @@ export function ActivityDetailPage() {
                     <Users size={20} className="text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium">{activity.participants}/{activity.maxParticipants} Joined</p>
-                    <p className="text-sm text-muted-foreground">{activity.maxParticipants - activity.participants} spots left</p>
+                    <p className="font-medium">
+                      {activity.participants}/{activity.maxParticipants} Joined
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {spotsLeft} spots left
+                    </p>
                   </div>
                 </div>
               </div>
@@ -146,67 +224,82 @@ export function ActivityDetailPage() {
 
               <div>
                 <h2 className="font-semibold mb-3">About this activity</h2>
-                <p className="text-muted-foreground leading-relaxed">{activity.description}</p>
+                <p className="text-muted-foreground leading-relaxed">
+                  {activity.description || "No description provided."}
+                </p>
               </div>
             </div>
 
-            {/* Organizer */}
             <div className="bg-card rounded-2xl p-6 border border-border">
               <h2 className="font-semibold mb-4">Organizer</h2>
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">
-                  {activity.organizer.avatar}
+                  {activity.organizer?.avatar || "😊"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg">{activity.organizer.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{activity.organizer.bio}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Organized {activity.organizer.activitiesOrganized} activities
+                  <h3 className="font-semibold text-lg">
+                    {activity.organizer?.name || "Unknown"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {activity.organizer?.bio ||
+                      "Passionate about connecting international students"}
                   </p>
                 </div>
-                <Link
-                  to={`/chat/organizer-${id}`}
+                <button
+                  onClick={handleMessage}
                   className="px-4 py-2 border border-primary text-primary rounded-xl hover:bg-primary hover:text-primary-foreground transition-all text-center sm:flex-shrink-0"
                 >
                   Message
-                </Link>
+                </button>
               </div>
             </div>
 
-            {/* Comments Section */}
             <div className="bg-card rounded-2xl p-6 border border-border">
               <h2 className="font-semibold mb-4 flex items-center gap-2">
                 <MessageCircle size={20} />
-                Comments ({comments.length})
+                Comments ({activity.comments?.length || 0})
               </h2>
 
               <div className="space-y-4 mb-4">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="space-y-3">
+                {activity.comments?.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No comments yet. Be the first!
+                  </p>
+                )}
+                {activity.comments?.map((c: any, i: number) => (
+                  <div key={i} className="space-y-3">
                     <div className="flex gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg flex-shrink-0">
-                        {comment.user.avatar}
+                        {c.user.avatar}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium">{comment.user.name}</span>
-                          <span className="text-xs text-muted-foreground">{comment.time}</span>
+                          <span className="font-medium">{c.user.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatTime(c.time)}
+                          </span>
                         </div>
-                        <p className="text-muted-foreground">{comment.text}</p>
+                        <p className="text-muted-foreground">{c.text}</p>
                       </div>
                     </div>
 
-                    {comment.replies?.map((reply) => (
-                      <div key={reply.id} className="flex gap-3 ml-12">
+                    {c.replies?.map((reply: any, j: number) => (
+                      <div key={j} className="flex gap-3 ml-12">
                         <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center flex-shrink-0">
                           {reply.user.avatar}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">{reply.user.name}</span>
-                            <span className="text-xs text-muted-foreground">{reply.time}</span>
+                            <span className="font-medium text-sm">
+                              {reply.user.name}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {formatTime(reply.time)}
+                            </span>
                           </div>
-                          <p className="text-sm text-muted-foreground">{reply.text}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {reply.text}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -216,50 +309,76 @@ export function ActivityDetailPage() {
 
               <div className="flex gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg flex-shrink-0">
-                  😊
+                  {currentUser?.avatar || "😊"}
                 </div>
                 <input
                   type="text"
-                  placeholder="Add a comment..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleComment();
+                  }}
+                  placeholder={
+                    currentUser ? "Add a comment..." : "Log in to comment..."
+                  }
                   className="flex-1 px-4 py-2 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
+                <button
+                  onClick={handleComment}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  Send
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Join Button */}
             <div className="hidden lg:block bg-card rounded-2xl p-6 border border-border sticky top-20">
               <button
-                onClick={() => setIsJoined(!isJoined)}
+                onClick={handleJoin}
+                disabled={!isJoined && spotsLeft <= 0}
                 className={`w-full py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all ${
                   isJoined
-                    ? 'bg-muted text-foreground border border-border'
-                    : 'bg-primary text-primary-foreground hover:scale-[1.02]'
+                    ? "bg-muted text-foreground border border-border"
+                    : spotsLeft <= 0
+                      ? "bg-muted text-muted-foreground cursor-not-allowed"
+                      : "bg-primary text-primary-foreground hover:scale-[1.02]"
                 }`}
               >
-                {isJoined ? 'Leave Activity' : 'Join Activity'}
+                {isJoined
+                  ? "Leave Activity"
+                  : spotsLeft <= 0
+                    ? "Full"
+                    : "Join Activity"}
               </button>
               <p className="text-xs text-center text-muted-foreground mt-3">
-                {activity.maxParticipants - activity.participants} spots remaining
+                {currentUser
+                  ? `${spotsLeft} spots remaining`
+                  : "Log in to join"}
               </p>
             </div>
 
-            {/* Participants */}
             <div className="bg-card rounded-2xl p-6 border border-border">
               <h2 className="font-semibold mb-4">
                 Participants ({activity.participants})
               </h2>
               <div className="space-y-3">
-                {members.map((participant) => (
-                  <div key={participant.id} className="flex items-center gap-3">
+                {activity.members?.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No participants yet.
+                  </p>
+                )}
+                {activity.members?.map((m: any, i: number) => (
+                  <div key={i} className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg">
-                      {participant.avatar}
+                      {m.avatar || "😊"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{participant.name}</p>
-                      <p className="text-xs text-muted-foreground">{participant.country}</p>
+                      <p className="font-medium truncate">{m.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {m.country}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -269,17 +388,23 @@ export function ActivityDetailPage() {
         </div>
       </div>
 
-      {/* Sticky Join Button - Mobile */}
       <div className="fixed bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent lg:hidden">
         <button
-          onClick={() => setIsJoined(!isJoined)}
+          onClick={handleJoin}
+          disabled={!isJoined && spotsLeft <= 0}
           className={`w-full py-4 rounded-2xl font-semibold shadow-2xl transition-all ${
             isJoined
-              ? 'bg-muted text-foreground border-2 border-border'
-              : 'bg-primary text-primary-foreground'
+              ? "bg-muted text-foreground border-2 border-border"
+              : spotsLeft <= 0
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-primary text-primary-foreground"
           }`}
         >
-          {isJoined ? 'Leave Activity' : 'Join Activity'}
+          {isJoined
+            ? "Leave Activity"
+            : spotsLeft <= 0
+              ? "Full"
+              : "Join Activity"}
         </button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   Users,
@@ -12,11 +12,29 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import logo from "../../assets/Screenshot 2026-05-25 at 22.17.52.png";
+import axios from "axios";
+
 export function LandingPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/activities")
+      .then((res) => {
+        setActivities(res.data);
+      })
+      .catch((err) => {
+        console.error("Өгөгдөл татахад алдаа:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -29,6 +47,7 @@ export function LandingPage() {
     e.preventDefault();
     navigate("/feed");
   };
+
   const categories = [
     {
       icon: Users,
@@ -50,42 +69,6 @@ export function LandingPage() {
     { icon: Palette, label: "Hobbies", color: "bg-yellow-100 text-yellow-600" },
   ];
 
-  const featuredActivities = [
-    {
-      id: 1,
-      title: "Korean Language Exchange @ Cafe",
-      category: "Language Exchange",
-      location: "Hongdae, Seoul",
-      date: "May 15, 2026",
-      time: "6:00 PM",
-      participants: 8,
-      maxParticipants: 12,
-      image: "https://images.unsplash.com/photo-1556761175-4b46a572b786",
-    },
-    {
-      id: 2,
-      title: "Weekend Hiking to Bukhansan",
-      category: "Travel",
-      location: "Bukhansan National Park",
-      date: "May 17, 2026",
-      time: "8:00 AM",
-      participants: 15,
-      maxParticipants: 20,
-      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
-    },
-    {
-      id: 3,
-      title: "Study Group - Midterm Prep",
-      category: "Study Together",
-      location: "University Library",
-      date: "May 14, 2026",
-      time: "2:00 PM",
-      participants: 6,
-      maxParticipants: 8,
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1",
-    },
-  ];
-
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -100,12 +83,6 @@ export function LandingPage() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-6">
-              <Link
-                to="/feed"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Explore
-              </Link>
               <Link
                 to="/feed"
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -151,12 +128,6 @@ export function LandingPage() {
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="lg:hidden py-4 space-y-3 border-t border-border">
-              <Link
-                to="/feed"
-                className="block px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Explore
-              </Link>
               <Link
                 to="/feed"
                 className="block px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -235,7 +206,7 @@ export function LandingPage() {
                 {isLoggedIn ? "Explore Feed" : "Join Now"}
               </Link>
               <Link
-                to="/create"
+                to={isLoggedIn ? "/create" : "/auth"}
                 className="px-8 py-4 bg-card text-foreground border-2 border-primary rounded-2xl font-semibold shadow-md hover:shadow-lg transition-all hover:scale-105"
               >
                 Create Activity
@@ -273,7 +244,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Featured Activities */}
+      {/* Trending Activities */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <h2 className="text-3xl font-bold">Trending Activities</h2>
@@ -282,49 +253,82 @@ export function LandingPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {featuredActivities.map((activity) => (
-            <Link
-              key={activity.id}
-              to={`/activity/${activity.id}`}
-              className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all"
-            >
-              <div className="relative h-48 overflow-hidden bg-muted">
-                <div
-                  className="w-full h-full bg-cover bg-center group-hover:scale-110 transition-transform duration-300"
-                  style={{ backgroundImage: `url(${activity.image})` }}
-                />
-                <div className="absolute top-3 right-3 px-3 py-1 bg-card/90 backdrop-blur-sm rounded-full text-xs font-medium">
-                  {activity.category}
+        {/* Loading skeleton */}
+        {loading && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="bg-card rounded-2xl overflow-hidden border border-border animate-pulse"
+              >
+                <div className="h-48 bg-muted" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
+                  <div className="h-3 bg-muted rounded w-2/3" />
                 </div>
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-3 group-hover:text-primary transition-colors">
-                  {activity.title}
-                </h3>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} />
-                    <span>{activity.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} />
-                    <span>
-                      {activity.date} • {activity.time}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users size={16} />
-                    <span>
-                      {activity.participants}/{activity.maxParticipants}{" "}
-                      participants
-                    </span>
+            ))}
+          </div>
+        )}
+
+        {!loading && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {activities.slice(0, 3).map((activity: any) => (
+              <Link
+                key={activity._id}
+                to={`/activity/${activity._id}`}
+                className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all"
+              >
+                <div className="relative h-48 overflow-hidden bg-muted">
+                  {activity.image ? (
+                    <div
+                      className="w-full h-full bg-cover bg-center group-hover:scale-110 transition-transform duration-300"
+                      style={{ backgroundImage: `url(${activity.image})` }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+                      No image
+                    </div>
+                  )}
+                  <div className="absolute top-3 right-3 px-3 py-1 bg-card/90 backdrop-blur-sm rounded-full text-xs font-medium">
+                    {activity.category}
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-3 group-hover:text-primary transition-colors">
+                    {activity.title}
+                  </h3>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} />
+                      <span>{activity.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} />
+                      <span>
+                        {activity.date} • {activity.time}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users size={16} />
+                      <span>
+                        {activity.participants}/{activity.maxParticipants}{" "}
+                        participants
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {!loading && activities.length === 0 && (
+          <div className="text-center py-16 text-muted-foreground">
+            <p className="text-lg">No activities yet.</p>
+          </div>
+        )}
       </section>
 
       {/* Footer CTA */}

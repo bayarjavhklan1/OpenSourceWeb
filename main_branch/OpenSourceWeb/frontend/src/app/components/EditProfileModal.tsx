@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Upload } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { X, Upload } from "lucide-react";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -9,29 +9,44 @@ interface EditProfileModalProps {
     bio: string;
     location: string;
     interests: string[];
+    avatar?: string;
   };
   onSave: (profile: any) => void;
 }
 
-export function EditProfileModal({ isOpen, onClose, currentProfile, onSave }: EditProfileModalProps) {
+export function EditProfileModal({
+  isOpen,
+  onClose,
+  currentProfile,
+  onSave,
+}: EditProfileModalProps) {
   const [name, setName] = useState(currentProfile.name);
   const [bio, setBio] = useState(currentProfile.bio);
   const [location, setLocation] = useState(currentProfile.location);
-  const [interests, setInterests] = useState<string[]>(currentProfile.interests);
-  const [newInterest, setNewInterest] = useState('');
+  const [interests, setInterests] = useState<string[]>(
+    currentProfile.interests,
+  );
+  const [newInterest, setNewInterest] = useState("");
+
+  useEffect(() => {
+    setName(currentProfile.name);
+    setBio(currentProfile.bio);
+    setLocation(currentProfile.location);
+    setInterests(currentProfile.interests);
+  }, [currentProfile]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ name, bio, location, interests });
+    onSave({ name, bio, location, interests, avatar: currentProfile.avatar });
     onClose();
   };
 
   const addInterest = () => {
     if (newInterest.trim() && !interests.includes(newInterest.trim())) {
       setInterests([...interests, newInterest.trim()]);
-      setNewInterest('');
+      setNewInterest("");
     }
   };
 
@@ -58,7 +73,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSave }: Ed
             <label className="block font-medium mb-3">Profile Photo</label>
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-4xl">
-                👩
+                {currentProfile.avatar || "🙂"}
               </div>
               <button
                 type="button"
@@ -70,7 +85,6 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSave }: Ed
             </div>
           </div>
 
-          {/* Name */}
           <div>
             <label className="block font-medium mb-2">Full Name</label>
             <input
@@ -82,7 +96,6 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSave }: Ed
             />
           </div>
 
-          {/* Bio */}
           <div>
             <label className="block font-medium mb-2">Bio</label>
             <textarea
@@ -97,7 +110,6 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSave }: Ed
             </p>
           </div>
 
-          {/* Location */}
           <div>
             <label className="block font-medium mb-2">Location</label>
             <input
@@ -109,7 +121,6 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSave }: Ed
             />
           </div>
 
-          {/* Interests */}
           <div>
             <label className="block font-medium mb-2">Interests</label>
             <div className="flex gap-2 mb-3">
@@ -117,7 +128,9 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSave }: Ed
                 type="text"
                 value={newInterest}
                 onChange={(e) => setNewInterest(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addInterest())}
+                onKeyPress={(e) =>
+                  e.key === "Enter" && (e.preventDefault(), addInterest())
+                }
                 className="flex-1 px-4 py-2 bg-muted rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                 placeholder="Add an interest..."
               />
@@ -148,7 +161,6 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSave }: Ed
             </div>
           </div>
 
-          {/* Buttons */}
           <div className="flex gap-3 pt-4">
             <button
               type="button"

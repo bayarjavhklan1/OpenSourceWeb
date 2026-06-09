@@ -1,124 +1,226 @@
 import { useState } from "react";
-import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  MapPin,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router";
+
+const INTERESTS = [
+  "Language Exchange",
+  "Study Together",
+  "Cooking",
+  "Travel",
+  "Sports",
+  "Music",
+  "Art",
+  "Movies",
+  "Gaming",
+  "Book Club",
+];
+
+const AVATARS = ["🙂", "🎓", "🌟", "🎨", "🎮", "📚", "🎵", "⚽", "🍜", "✈️"];
 
 export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [step, setStep] = useState(1); // 1=үндсэн мэдээлэл, 2=профайл
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [avatar, setAvatar] = useState("🙂");
+  const [location, setLocation] = useState("");
+  const [interests, setInterests] = useState<string[]>([]);
 
-    const staticUser = {
-      name: "Demo Student",
-      email: "demo@connect.com",
-      avatar: "🎓"
-    };
-
-    // If static demo credentials entered, log in directly without backend
-    if (isLogin && email === "demo@connect.com" && password === "password") {
-      localStorage.setItem("user", JSON.stringify(staticUser));
-      localStorage.setItem("profile", JSON.stringify({
-        avatar: "🎓",
-        bio: "I am a study abroad student looking to connect with others!",
-        location: "Seoul, Korea",
-        interests: ["Language Exchange", "Study Together", "Hobbies"]
-      }));
-      navigate("/feed");
-      return;
-    }
-
-    if (isLogin) {
-      fetch("http://localhost:5001/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, password: password }),
-      })
-        .then((res) => res.json())
-        .then((r) => {
-          if (!r.success) {
-            alert(r.message);
-            return;
-          }
-          localStorage.setItem("user", JSON.stringify(r.user));
-          navigate("/feed");
-        })
-        .catch((err) => {
-          console.warn("Backend not running. Using fallback static user.", err);
-          // Fallback static user login when server is offline
-          localStorage.setItem("user", JSON.stringify({
-            name: "Demo Student",
-            email: email,
-            avatar: "🎓"
-          }));
-          navigate("/feed");
-        });
-    } else {
-      fetch("http://localhost:5001/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name, email: email, password: password }),
-      })
-        .then((res) => res.json())
-        .then((r) => {
-          if (!r.success) {
-            alert(r.message);
-            return;
-          }
-          localStorage.setItem("user", JSON.stringify({ name: name, email: email, avatar: "🎓" }));
-          navigate("/feed");
-        })
-        .catch((err) => {
-          console.warn("Backend not running. Using register fallback.", err);
-          localStorage.setItem("user", JSON.stringify({ name: name, email: email, avatar: "🎓" }));
-          navigate("/feed");
-        });
-    }
+  const toggleInterest = (item: string) => {
+    setInterests((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item],
+    );
   };
 
-  const handleDemoLogin = () => {
-    setEmail("demo@connect.com");
-    setPassword("password");
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    fetch("http://localhost:5001/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((res) => res.json())
+      .then((r) => {
+        if (!r.success) {
+          alert(r.message);
+          return;
+        }
+        localStorage.setItem("user", JSON.stringify(r.user));
+        navigate("/feed");
+      })
+      .catch(() => {
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ name: "Demo Student", email, avatar: "🎓" }),
+        );
+        navigate("/feed");
+      });
+  };
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    fetch("http://localhost:5001/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        avatar,
+        location,
+        interests,
+      }),
+    })
+      .then((res) => res.json())
+      .then((r) => {
+        if (!r.success) {
+          alert(r.message);
+          return;
+        }
+        localStorage.setItem("user", JSON.stringify(r.user));
+        navigate("/feed");
+      })
+      .catch(() => {
+        localStorage.setItem("user", JSON.stringify({ name, email, avatar }));
+        navigate("/feed");
+      });
+  };
+
+  const switchMode = (toLogin: boolean) => {
+    setIsLogin(toLogin);
+    setStep(1);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-accent/20 to-secondary/30 p-4">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNGRjZCNkIiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE4YzAgMy4zMTQtMi42ODYgNi02IDZzLTYtMi42ODYtNi02IDIuNjg2LTYgNi02IDYgMi42ODYgNiA2Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-40"></div>
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNGRjZCNkIiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE4YzAgMy4zMTQtMi42ODYgNi02IDZzLTYtMi42ODYtNi02IDIuNjg2LTYgNi02IDYgMi42ODYgNiA2Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-40" />
 
       <div className="w-full max-w-md relative">
         <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-border">
-          {/* Logo */}
-          <div className="flex flex-col items-center mb-8">
+          {/* Лого */}
+          <div className="flex flex-col items-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-primary to-[#FF7F50] rounded-2xl flex items-center justify-center mb-3">
               <span className="text-white font-bold text-2xl">C</span>
             </div>
             <h1 className="text-2xl font-bold text-foreground">
-              Welcome to Connect
+              {isLogin
+                ? "Sign in to your account"
+                : step === 1
+                  ? "Enter your basic information"
+                  : "Customize your interests"}
             </h1>
-            <p className="text-muted-foreground text-sm mt-2">
-              {isLogin ? "Login to your account" : "Create your account"}
+            <p className="text-muted-foreground text-sm mt-1">
+              {isLogin
+                ? "Sign in to your account"
+                : step === 1
+                  ? "Enter your basic information"
+                  : "Customize your interests"}
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
+          {!isLogin && (
+            <div className="flex items-center gap-2 mb-6">
+              <div
+                className={`flex-1 h-1.5 rounded-full transition-all ${step >= 1 ? "bg-primary" : "bg-muted"}`}
+              />
+              <div
+                className={`flex-1 h-1.5 rounded-full transition-all ${step >= 2 ? "bg-primary" : "bg-muted"}`}
+              />
+            </div>
+          )}
+
+          {isLogin && (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Email</label>
+                <div className="relative">
+                  <Mail
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    size={18}
+                  />
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    className="w-full pl-10 pr-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Full Name
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    size={18}
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-12 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+              >
+                Нэвтрэх
+              </button>
+            </form>
+          )}
+
+          {!isLogin && step === 1 && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setStep(2);
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Full name
                 </label>
                 <div className="relative">
                   <User
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     size={18}
                   />
                   <input
                     type="text"
-                    placeholder="John Doe"
+                    placeholder="Enter your name"
                     className="w-full pl-10 pr-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -126,99 +228,149 @@ export function AuthPage() {
                   />
                 </div>
               </div>
-            )}
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <div className="relative">
-                <Mail
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                  size={18}
-                />
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  className="w-full pl-10 pr-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
-              <div className="relative">
-                <Lock
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                  size={18}
-                />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-12 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            {isLogin && (
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-border accent-primary"
+              <div>
+                <label className="block text-sm font-medium mb-2">Email</label>
+                <div className="relative">
+                  <Mail
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    size={18}
                   />
-                  <span className="text-muted-foreground">Remember me</span>
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    className="w-full pl-10 pr-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Password
                 </label>
-                <a
-                  href="#"
-                  className="text-primary font-medium hover:underline"
-                >
-                  Forgot password?
-                </a>
+                <div className="relative">
+                  <Lock
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    size={18}
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-12 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
-            )}
 
-            <button
-              type="submit"
-              className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
-            >
-              {isLogin ? "Login" : "Create Account"}
-            </button>
-          </form>
-
-          {isLogin && (
-            <div className="mt-4 p-4 rounded-xl bg-secondary/30 border border-primary/20 text-xs space-y-2">
-              <p className="font-semibold text-foreground">💡 Static Demo Account:</p>
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span>Email: <code className="bg-card px-1 py-0.5 rounded border border-border text-foreground font-mono">demo@connect.com</code></span>
-                <span>Password: <code className="bg-card px-1 py-0.5 rounded border border-border text-foreground font-mono">password</code></span>
-              </div>
               <button
-                type="button"
-                onClick={handleDemoLogin}
-                className="w-full mt-2 py-1.5 px-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-all text-center"
+                type="submit"
+                className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
               >
-                Auto-fill Demo Credentials
+                Continue <ChevronRight size={18} />
               </button>
-            </div>
+            </form>
           )}
 
-          {/* Toggle Auth Mode */}
+          {!isLogin && step === 2 && (
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Select avatar
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {AVATARS.map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setAvatar(a)}
+                      className={`w-10 h-10 text-xl rounded-xl transition-all ${
+                        avatar === a
+                          ? "bg-primary/20 ring-2 ring-primary scale-110"
+                          : "bg-muted hover:bg-secondary"
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Location
+                </label>
+                <div className="relative">
+                  <MapPin
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    size={18}
+                  />
+                  <input
+                    type="text"
+                    placeholder="e.g. Seoul, South Korea"
+                    className="w-full pl-10 pr-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label>
+                  Interests
+                  <span>(multiple selections allowed)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {INTERESTS.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => toggleInterest(item)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        interests.includes(item)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="px-4 py-3 bg-muted text-foreground rounded-xl font-semibold hover:bg-secondary transition-all flex items-center gap-1"
+                >
+                  <ChevronLeft size={18} /> Back
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </form>
+          )}
+
           <p className="text-center text-sm text-muted-foreground mt-6">
             {isLogin ? "Don't have an account? " : "Already have an account? "}
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => switchMode(!isLogin)}
               className="text-primary font-medium hover:underline"
             >
               {isLogin ? "Sign up" : "Login"}
@@ -230,7 +382,7 @@ export function AuthPage() {
           to="/"
           className="block text-center mt-6 text-muted-foreground hover:text-foreground"
         >
-          ← Back to home
+          ← Back to Home
         </Link>
       </div>
     </div>

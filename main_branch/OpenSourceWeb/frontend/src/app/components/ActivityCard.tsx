@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Users, MapPin, Calendar, Heart } from 'lucide-react';
-import { Link } from 'react-router';
+import { useState } from "react";
+import { Users, MapPin, Calendar, Heart } from "lucide-react";
+import { Link } from "react-router";
 
 interface Activity {
   _id?: string;
@@ -50,7 +50,7 @@ export function ActivityCard({ activity }: ActivityCardProps) {
           >
             <Heart
               size={18}
-              className={`${isFavorite ? 'fill-primary text-primary' : 'text-muted-foreground'} transition-colors`}
+              className={`${isFavorite ? "fill-primary text-primary" : "text-muted-foreground"} transition-colors`}
             />
           </button>
         </div>
@@ -70,7 +70,9 @@ export function ActivityCard({ activity }: ActivityCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={16} className="flex-shrink-0" />
-            <span>{activity.date} • {activity.time}</span>
+            <span>
+              {activity.date} • {activity.time}
+            </span>
           </div>
         </div>
 
@@ -79,7 +81,9 @@ export function ActivityCard({ activity }: ActivityCardProps) {
           <div className="flex items-center justify-between text-sm mb-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Users size={16} />
-              <span>{activity.participants}/{activity.maxParticipants} joined</span>
+              <span>
+                {activity.participants}/{activity.maxParticipants} joined
+              </span>
             </div>
             <span className="text-xs font-medium">{Math.round(pct)}%</span>
           </div>
@@ -98,7 +102,9 @@ export function ActivityCard({ activity }: ActivityCardProps) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground">Organized by</p>
-            <p className="text-sm font-medium truncate">{activity.organizer.name}</p>
+            <p className="text-sm font-medium truncate">
+              {activity.organizer.name}
+            </p>
           </div>
         </div>
       </div>

@@ -1,24 +1,42 @@
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-// 모임 정보 저장하는곳
-var actSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  category: { type: String, required: true },
-  description: { type: String, default: "" },
-  location: { type: String, required: true },
-  address: { type: String, default: "" },
-  date: { type: String, required: true },
-  time: { type: String, required: true },
-  duration: { type: String, default: "" },
-  participants: { type: Number, default: 0 },
-  maxParticipants: { type: Number, required: true },
-  image: { type: String, default: "" },
-  organizer: {
-    name: { type: String, default: "" },
-    avatar: { type: String, default: "" }
+const commentSchema = new mongoose.Schema({
+  user: {
+    name: String,
+    avatar: String,
   },
-  createdAt: { type: Date, default: Date.now }
+  text: String,
+  time: { type: Date, default: Date.now },
+  replies: [
+    {
+      user: { name: String, avatar: String },
+      text: String,
+      time: { type: Date, default: Date.now },
+    },
+  ],
 });
 
-var Activity = mongoose.model("Activity", actSchema);
-module.exports = Activity;
+const memberSchema = new mongoose.Schema({
+  name: String,
+  avatar: String,
+  country: String,
+});
+
+const activitySchema = new mongoose.Schema({
+  title: String,
+  category: String,
+  description: String,
+  location: String,
+  address: String,
+  date: String,
+  time: String,
+  duration: String,
+  participants: { type: Number, default: 0 },
+  maxParticipants: Number,
+  image: String,
+  createdAt: { type: Date, default: Date.now },
+  organizer: { name: String, avatar: String },
+  comments: [commentSchema],
+  members: [memberSchema],
+});
+module.exports = mongoose.model("Activity", activitySchema);
