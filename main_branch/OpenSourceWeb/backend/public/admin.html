@@ -127,13 +127,13 @@
     var SERVER = 'http://localhost:5000';
     var activityList = [];
 
-    function showMsg(txt, fail) {
+    function showMsg(txt, fail) { // 반복되는 error check로 인해 함수 하나 만듬
       var box = document.getElementById('msg');
       box.textContent = txt;
       box.className = 'msg ' + (fail ? 'err' : 'ok');
     }
 
-    function showTab(tab) {
+    function showTab(tab) { // 삼항 연산자로 T/F에 따라 보이게 안보이게 하기 
       var onUsers = tab === 'users';
       document.getElementById('section-users').style.display = onUsers ? '' : 'none';
       document.getElementById('section-activities').style.display = onUsers ? 'none' : '';
@@ -145,7 +145,7 @@
 
     // ── 유저 ──
 
-    function resetUserSearch() {
+    function resetUserSearch() { // 이걸 안해주면 겹치는 현상 발생 가능성 존재 
       document.getElementById('user-keyword').value = '';
       loadUsers();
     }
@@ -155,7 +155,8 @@
       var url = SERVER + '/admin/users';
       if (word) url = url + '?keyword=' + word;
 
-      fetch(url).then(function(r) {
+      fetch(url)
+      .then(function(r) {
         return r.json();
       }).then(function(result) {
         var tbl = document.getElementById('user-tbody');
@@ -167,7 +168,7 @@
           return;
         }
 
-        for (var i = 0; i < result.data.length; i++) {
+        for (var i = 0; i < result.data.length; i++) { // 중간 마지막 문제 참고해서 table 채우기 
           var u = result.data[i];
 
           var d = new Date(u.createdAt);
@@ -186,15 +187,15 @@
           tdBadge.textContent = badge;
           tdSince.textContent = since;
 
-          if (u.role !== 'admin') {
+          if (u.role !== 'admin') { // 실행되도 버튼 살아있게 만들기 위해서 setAttribute로 구성 
             var promoteBtn = document.createElement('button');
             promoteBtn.textContent = '관리자 승격';
-            promoteBtn.setAttribute('onclick', 'promoteUser("' + u._id + '")');
+            promoteBtn.setAttribute('onclick', 'promoteUser("' + u._id + '")'); // 문자열 자체를 넘겨야하는데 ' '은 js에서 문자열 취급을 했기 때문에 그 자체를 넘기려면 ""을 감싸서 넘겨야한다. 
             tdAct.appendChild(promoteBtn);
           } else {
             var demoteBtn = document.createElement('button');
             demoteBtn.textContent = '일반으로';
-            demoteBtn.setAttribute('onclick', 'demoteUser("' + u._id + '")');
+            demoteBtn.setAttribute('onclick', 'demoteUser("' + u._id + '")'); // `demoteUser("${u._id}")`)으로 작동 시켜도 되지만 직관적으로 하기 
             tdAct.appendChild(demoteBtn);
           }
 
@@ -214,8 +215,10 @@
     }
 
     function deleteUser(d, name) {
-      if (!confirm('"' + name + '" 유저를 삭제할까요? 되돌릴 수 없어요.')) return;
-      fetch(SERVER + '/admin/users/' + d, { method: 'DELETE' }).then(function(r) {
+      if (!confirm('"' + name + '" 유저를 삭제할까요? 되돌릴 수 없어요.'))
+       return;
+      fetch(SERVER + '/admin/users/' + d, { method: 'DELETE' })
+      .then(function(r) {
         return r.json();
       }).then(function(result) {
         showMsg(result.message, !result.success);
@@ -318,7 +321,7 @@
       });
     }
 
-    function openEdit(i) {
+    function openEdit(i) { // 모임 json 형태  가져오기 
       var item = activityList[i];
       document.getElementById('edit-id').value = item._id;
       document.getElementById('edit-title').value = item.title;
@@ -333,11 +336,11 @@
       document.getElementById('edit-modal').style.display = '';
     }
 
-    function closeModal() {
+    function closeModal() { // 이거 안하면 안 닫힘 
       document.getElementById('edit-modal').style.display = 'none';
     }
 
-    function saveActivity() {
+    function saveActivity() { // 저장 기능 
       var aid = document.getElementById('edit-id').value;
       var form = {
         title: document.getElementById('edit-title').value,
@@ -359,7 +362,9 @@
         return r.json();
       }).then(function(result) {
         showMsg(result.message, !result.success);
-        if (result.success) { closeModal(); loadActivities(); }
+        if (result.success) { 
+          closeModal(); loadActivities(); 
+        }
       });
     }
 
