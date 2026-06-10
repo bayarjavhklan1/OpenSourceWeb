@@ -1,27 +1,36 @@
-import { useState, useEffect } from 'react';
-import { Search, Users, Plus } from 'lucide-react';
-import { Link } from 'react-router';
-import { ActivityCard } from '../components/ActivityCard';
+import { useState, useEffect } from "react";
+import { Search, Users, Plus } from "lucide-react";
+import { Link } from "react-router";
+import { ActivityCard } from "../components/ActivityCard";
 
 export function FeedPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [activities, setActivities] = useState<any[]>([]);
 
-  const categories = ['All', 'Study Together', 'Eat Together', 'Exercise', 'Language Exchange', 'Travel', 'Hobbies'];
+  const categories = [
+    "All",
+    "Study Together",
+    "Eat Together",
+    "Exercise",
+    "Language Exchange",
+    "Travel",
+    "Hobbies",
+  ];
 
   // 처음 켜질때 모임목록 불러오기
   useEffect(() => {
-    fetch('http://localhost:5000/activities')
-      .then(res => res.json())
-      .then(data => setActivities(data));
+    fetch("http://localhost:5001/activities")
+      .then((res) => res.json())
+      .then((data) => setActivities(data));
   }, []);
 
   // 카테고리 + 검색어로 거르기
   const shown = activities.filter((a) => {
-    const okCat = selectedCategory === 'All' || a.category === selectedCategory;
+    const okCat = selectedCategory === "All" || a.category === selectedCategory;
     const word = searchQuery.toLowerCase();
-    const okWord = searchQuery === '' ||
+    const okWord =
+      searchQuery === "" ||
       a.title.toLowerCase().includes(word) ||
       a.location.toLowerCase().includes(word) ||
       a.category.toLowerCase().includes(word);
@@ -34,13 +43,18 @@ export function FeedPage() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Discover Activities</h1>
-          <p className="text-muted-foreground">Find your next adventure with fellow students</p>
+          <p className="text-muted-foreground">
+            Find your next adventure with fellow students
+          </p>
         </div>
 
         {/* Search and Filter */}
         <div className="mb-6 space-y-4">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+            <Search
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Search activities..."
@@ -58,8 +72,8 @@ export function FeedPage() {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
                   selectedCategory === category
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'bg-card text-foreground border border-border hover:bg-muted'
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "bg-card text-foreground border border-border hover:bg-muted"
                 }`}
               >
                 {category}
@@ -82,7 +96,9 @@ export function FeedPage() {
               <Users size={40} className="text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">No activities found</h3>
-            <p className="text-muted-foreground mb-6">Try adjusting your filters or create a new activity!</p>
+            <p className="text-muted-foreground mb-6">
+              Try adjusting your filters or create a new activity!
+            </p>
             <Link
               to="/create"
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"

@@ -1,11 +1,4 @@
-import {
-  Home,
-  Compass,
-  PlusCircle,
-  MessageCircle,
-  User,
-  Bell,
-} from "lucide-react";
+import { Home, Compass, PlusCircle, MessageCircle, User } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import logo from "../../assets/Screenshot 2026-05-25 at 22.17.52.png";
 export function DesktopNav() {
@@ -20,7 +13,7 @@ export function DesktopNav() {
   if (isLoggedIn) {
     navItems.push(
       { icon: PlusCircle, label: "Create", path: "/create" },
-      { icon: MessageCircle, label: "Chat", path: "/chat" }
+      { icon: MessageCircle, label: "Chat", path: "/chat" },
     );
   }
 
@@ -59,13 +52,6 @@ export function DesktopNav() {
                 </Link>
               );
             })}
-
-            {isLoggedIn && (
-              <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all relative">
-                <Bell size={20} />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-              </button>
-            )}
 
             {isLoggedIn ? (
               <Link to="/profile" className="ml-2">

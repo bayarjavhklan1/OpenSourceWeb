@@ -6,13 +6,15 @@ var express = require("express");
 var mongoose = require("mongoose");
 var cors = require("cors");
 var path = require("path");
+const fs = require("fs");
+const uploadRoute = require("./routes/upload.js");
 
 // 라우터들
 var authRoute = require("./routes/auth.js");
 var actRoute = require("./routes/activity.js");
 var chatRoute = require("./routes/chat.js");
 var adminRoute = require("./routes/admin.js");
-var translateRoute = require("./routes/translate.js");//add
+var translateRoute = require("./routes/translate.js"); //add
 
 var app = express();
 
@@ -23,9 +25,13 @@ app.use("/translate", translateRoute); //add
 // public 폴더 정적파일 (admin.html 같은거)
 app.use(express.static(path.join(__dirname, "public")));
 
+// mongoose.connect()-н өмнө нэм:
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
 // db 연결
 mongoose
-.connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI)
   .then(function () {
     console.log("Connected to MongoDB database");
   })
@@ -37,6 +43,9 @@ app.use("/auth", authRoute);
 app.use("/activities", actRoute);
 app.use("/chat", chatRoute);
 app.use("/admin", adminRoute);
+app.use("/uploads", express.static("uploads"));
+app.use("/upload", uploadRoute);
+app.use("/users", require("./routes/users.js"));
 
 app.listen(5001, function () {
   console.log("Server is running on port 5001");

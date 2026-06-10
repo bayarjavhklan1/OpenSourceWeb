@@ -15,26 +15,44 @@ interface ActivityItem {
   organizer?: { name: string; avatar: string };
 }
 
+interface UserProfile {
+  name: string;
+  email: string;
+  avatar: string;
+  bio: string;
+  location: string;
+  interests: string[];
+  createdAt: string;
+  stats: {
+    activitiesJoined: number;
+    activitiesOrganized: number;
+    followers: number;
+    following: number;
+  };
+}
+
 export function ProfilePage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const isOwnProfile = !userId;
+
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "organized">(
     "upcoming",
   );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [allActivities, setAllActivities] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const savedUser = JSON.parse(localStorage.getItem("user") || "null");
-  const savedProfile = JSON.parse(localStorage.getItem("profile") || "null");
 
-  const [user, setUser] = useState({
-    name: savedUser ? savedUser.name : "",
-    avatar: savedProfile ? savedProfile.avatar : "아바타",
-    bio: savedProfile ? savedProfile.bio : "",
-    location: savedProfile ? savedProfile.location : "",
-    joinedDate: "",
-    interests: savedProfile ? savedProfile.interests : [],
+  const [user, setUser] = useState<UserProfile>({
+    name: "",
+    email: "",
+    avatar: "🙂",
+    bio: "",
+    location: "",
+    interests: [],
+    createdAt: "",
     stats: {
       activitiesJoined: 0,
       activitiesOrganized: 0,
@@ -44,69 +62,92 @@ export function ProfilePage() {
   });
 
   useEffect(() => {
+    // Redirect to auth if not logged in
     if (!savedUser) {
       navigate("/auth");
       return;
     }
 
-    fetch("http://localhost:5000/activities")
-      .then(function (res) {
-        return res.json();
-      })
-      .then(function (data) {
-        setAllActivities(data);
+    const targetName = userId || savedUser.name;
 
-        // 내가 만든 모임 수 세기
-        let count = 0;
-        for (let i = 0; i < data.length; i++) {
-          if (data[i].organizer && data[i].organizer.name === savedUser.name) {
-            count++;
-          }
-        }
+    // Fetch profile and activities in parallel
+    Promise.all([
+      fetch("http://localhost:5000/users/" + targetName).then((r) => r.json()),
+      fetch("http://localhost:5000/activities").then((r) => r.json()),
+    ])
+      .then(([userData, activitiesData]) => {
+        const organized = activitiesData.filter(
+          (a: ActivityItem) =>
+            a.organizer && a.organizer.name === userData.name,
+        );
 
-        setUser(function (prev) {
-          return {
-            ...prev,
-            stats: {
-              ...prev.stats,
-              activitiesOrganized: count,
-              activitiesJoined: count,
-            },
-          };
+        setUser({
+          name: userData.name || "",
+          email: userData.email || "",
+          avatar: userData.avatar || "🙂",
+          bio: userData.bio || "",
+          location: userData.location || "",
+          interests: userData.interests || [],
+          createdAt: userData.createdAt || "",
+          stats: {
+            activitiesOrganized: organized.length,
+            activitiesJoined: organized.length, // update when join logic is added
+            followers: 0,
+            following: 0,
+          },
         });
-      });
-  }, []);
 
+        setAllActivities(activitiesData);
+        setLoading(false);
+      })
+      .catch(() => {
+        setUser((prev) => ({
+          ...prev,
+          name: savedUser.name || "",
+          email: savedUser.email || "",
+          avatar: savedUser.avatar || "🙂",
+        }));
+        setLoading(false);
+      });
+  }, [userId]);
+
+  // Save profile changes to backend
   const handleSaveProfile = (updatedProfile: any) => {
-    const newProfile = {
-      bio: updatedProfile.bio,
-      location: updatedProfile.location,
-      interests: updatedProfile.interests,
-      avatar: user.avatar,
-    };
-    localStorage.setItem("profile", JSON.stringify(newProfile));
-    setUser({ ...user, ...updatedProfile });
+    fetch("http://localhost:5000/users/" + user.name, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bio: updatedProfile.bio,
+        location: updatedProfile.location,
+        interests: updatedProfile.interests,
+        avatar: updatedProfile.avatar || user.avatar,
+      }),
+    })
+      .then((r) => r.json())
+      .then((updated) => {
+        setUser((prev) => ({
+          ...prev,
+          bio: updated.bio,
+          location: updated.location,
+          interests: updated.interests,
+          avatar: updated.avatar,
+        }));
+      });
   };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("profile");
     navigate("/");
   };
 
-  // 오늘 날짜 (DB 날짜 형식이 "2026-06-01" 같은 문자열이라 그냥 비교)
+  // Today's date in YYYY-MM-DD format for comparison
   const today = new Date().toISOString().slice(0, 10);
 
-  // 내가 만든 모임만 골라냄
-  const mine = allActivities.filter(function (a) {
-    return a.organizer && a.organizer.name === user.name;
-  });
-  const soon = mine.filter(function (a) {
-    return a.date >= today;
-  }); // 앞으로 할거
-  const done = mine.filter(function (a) {
-    return a.date < today;
-  }); // 지난거
+  const mine = allActivities.filter(
+    (a) => a.organizer && a.organizer.name === user.name,
+  );
+  const soon = mine.filter((a) => a.date >= today);
+  const done = mine.filter((a) => a.date < today);
 
   const getActivities = () => {
     if (activeTab === "upcoming") return soon;
@@ -115,10 +156,21 @@ export function ProfilePage() {
     return [];
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground text-sm">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Profile Header */}
+        {/* Profile header */}
         <div className="bg-card rounded-2xl p-6 lg:p-8 border border-border mb-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
             {/* Avatar */}
@@ -126,7 +178,7 @@ export function ProfilePage() {
               {user.avatar}
             </div>
 
-            {/* User Info */}
+            {/* User info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
@@ -140,10 +192,10 @@ export function ProfilePage() {
                         <span>{user.location}</span>
                       </div>
                     )}
-                    {savedUser && (
+                    {user.email && (
                       <div className="flex items-center gap-1">
                         <Calendar size={16} />
-                        <span>{savedUser.email}</span>
+                        <span>{user.email}</span>
                       </div>
                     )}
                   </div>
@@ -232,43 +284,28 @@ export function ProfilePage() {
           </div>
         </div>
 
-        {/* Activity Tabs */}
+        {/* Activity tabs */}
         <div className="bg-card rounded-2xl border border-border overflow-hidden">
-          {/* Tab Navigation */}
           <div className="flex border-b border-border overflow-x-auto">
-            <button
-              onClick={() => setActiveTab("upcoming")}
-              className={`flex-1 px-6 py-4 font-medium transition-all ${
-                activeTab === "upcoming"
-                  ? "text-primary border-b-2 border-primary bg-secondary/30"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              Upcoming
-            </button>
-            <button
-              onClick={() => setActiveTab("past")}
-              className={`flex-1 px-6 py-4 font-medium transition-all ${
-                activeTab === "past"
-                  ? "text-primary border-b-2 border-primary bg-secondary/30"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              Past
-            </button>
-            <button
-              onClick={() => setActiveTab("organized")}
-              className={`flex-1 px-6 py-4 font-medium transition-all ${
-                activeTab === "organized"
-                  ? "text-primary border-b-2 border-primary bg-secondary/30"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              Organized
-            </button>
+            {(["upcoming", "past", "organized"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 px-6 py-4 font-medium transition-all ${
+                  activeTab === tab
+                    ? "text-primary border-b-2 border-primary bg-secondary/30"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                {tab === "upcoming"
+                  ? "Upcoming"
+                  : tab === "past"
+                    ? "Past"
+                    : "Organized"}
+              </button>
+            ))}
           </div>
 
-          {/* Tab Content */}
           <div className="p-6">
             {getActivities().length === 0 ? (
               <div className="text-center py-12">
@@ -344,7 +381,6 @@ export function ProfilePage() {
         )}
       </div>
 
-      {/* Edit Profile Modal */}
       <EditProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
