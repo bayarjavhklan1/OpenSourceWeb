@@ -72,7 +72,7 @@ export function EditProfileModal({
           <div>
             <label className="block font-medium mb-3">Profile Photo</label>
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-4xl">
+              <div className="w-20 h-20 bg-linear-to-br from-primary to-accent rounded-full flex items-center justify-center text-4xl">
                 {currentProfile.avatar || "🙂"}
               </div>
               <button
