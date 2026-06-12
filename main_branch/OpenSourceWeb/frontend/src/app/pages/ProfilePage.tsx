@@ -200,15 +200,11 @@ export function ProfilePage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Profile header */}
         <div className="bg-card rounded-2xl p-6 lg:p-8 border border-border mb-6">
-          <div className="flex flex-col lg:flex-row gap-6 items-start">
-            {/* Avatar */}
-            <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center text-5xl lg:text-6xl flex-shrink-0">
+          <div className="flex flex-row gap-4 lg:gap-6 items-start">
+            <div className="w-24 h-24 lg:w-32 lg:h-32 bg-linear-to-br from-primary to-accent rounded-3xl flex items-center justify-center text-5xl lg:text-6xl shrink-0 ">
               {user.avatar}
             </div>
-
-            {/* User info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
@@ -247,23 +243,6 @@ export function ProfilePage() {
                   {user.bio}
                 </p>
               )}
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">
-                    {user.stats.activitiesJoined}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Joined</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">
-                    {user.stats.activitiesOrganized}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Organized</p>
-                </div>
-              </div>
-
               {!isOwnProfile && (
                 <div className="flex gap-3">
                   <button className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-semibold hover:shadow-lg transition-all">
@@ -275,6 +254,21 @@ export function ProfilePage() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-primary">
+                {user.stats.activitiesJoined}
+              </p>
+              <p className="text-xs text-muted-foreground">Joined</p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-2xl font-bold text-primary">
+                {user.stats.activitiesOrganized}
+              </p>
+              <p className="text-xs text-muted-foreground">Organized</p>
             </div>
           </div>
 
@@ -302,7 +296,6 @@ export function ProfilePage() {
           </div>
         </div>
 
-        {/* Activity tabs */}
         <div className="bg-card rounded-2xl border border-border overflow-hidden">
           <div className="flex border-b border-border overflow-x-auto">
             {(["upcoming", "past", "organized"] as const).map((tab) => (
@@ -354,7 +347,7 @@ export function ProfilePage() {
                     className="group flex gap-4 p-4 bg-background rounded-xl hover:shadow-lg transition-all border border-border"
                   >
                     <div
-                      className="w-24 h-24 rounded-xl bg-cover bg-center flex-shrink-0"
+                      className="w-24 h-24 rounded-xl bg-cover bg-center shrink-0"
                       style={{ backgroundImage: `url(${activity.image})` }}
                     />
                     <div className="flex-1 min-w-0">
