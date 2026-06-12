@@ -124,7 +124,7 @@
   </div>
 
   <script>
-    var SERVER = 'http://localhost:5000';
+    var SERVER = 'http://localhost:5001';
     var activityList = [];
 
     function showMsg(txt, fail) { // 반복되는 error check로 인해 함수 하나 만듬
@@ -217,7 +217,7 @@
     function deleteUser(d, name) {
       if (!confirm('"' + name + '" 유저를 삭제할까요? 되돌릴 수 없어요.'))
        return;
-      fetch(SERVER + '/admin/users/' + d, { method: 'DELETE' })
+      fetch(SERVER + '/admin/users/' + d + '/delete', { method: 'POST' })
       .then(function(r) {
         return r.json();
       }).then(function(result) {
@@ -312,7 +312,7 @@
 
     function deleteActivity(d) {
       if (!confirm('이 모임을 삭제할까요? 되돌릴 수 없어요.')) return;
-      fetch(SERVER + '/admin/activities/' + d, { method: 'DELETE' })
+      fetch(SERVER + '/admin/activities/' + d + '/delete', { method: 'POST' })
       .then(function(r) {
         return r.json();
       }).then(function(result) {
@@ -354,8 +354,8 @@
         maxParticipants: document.getElementById('edit-maxParticipants').value
       };
 
-      fetch(SERVER + '/admin/activities/' + aid, {
-        method: 'PUT',
+      fetch(SERVER + '/admin/activities/' + aid + '/update', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       }).then(function(r) {
