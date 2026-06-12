@@ -122,7 +122,6 @@ export function ActivityDetailPage() {
 
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-8">
-      {/* Header Image */}
       <div className="relative h-56 sm:h-64 lg:h-96 bg-muted">
         {activity.image && (
           <div
@@ -161,9 +160,7 @@ export function ActivityDetailPage() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Title and Details */}
             <div className="bg-card rounded-2xl p-6 border border-border">
               <h1 className="text-3xl font-bold mb-4">{activity.title}</h1>
 

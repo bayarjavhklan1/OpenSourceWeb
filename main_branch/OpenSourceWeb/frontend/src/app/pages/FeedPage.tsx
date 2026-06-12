@@ -22,14 +22,12 @@ export function FeedPage() {
     "Book Club",
   ];
 
-  // 처음 켜질때 모임목록 불러오기
   useEffect(() => {
     fetch("http://localhost:5001/activities")
       .then((res) => res.json())
       .then((data) => setActivities(data));
   }, []);
 
-  // 카테고리 + 검색어로 거르기
   const shown = activities.filter((a) => {
     const okCat = selectedCategory === "All" || a.category === selectedCategory;
     const word = searchQuery.toLowerCase();
@@ -44,7 +42,6 @@ export function FeedPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Discover Activities</h1>
           <p className="text-muted-foreground">
@@ -52,7 +49,6 @@ export function FeedPage() {
           </p>
         </div>
 
-        {/* Search and Filter */}
         <div className="mb-6 space-y-4">
           <div className="relative">
             <Search
@@ -68,7 +64,6 @@ export function FeedPage() {
             />
           </div>
 
-          {/* Category Filters */}
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((category) => (
               <button
@@ -86,14 +81,12 @@ export function FeedPage() {
           </div>
         </div>
 
-        {/* Activity Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-20 lg:mb-8">
           {shown.map((activity) => (
             <ActivityCard key={activity._id} activity={activity} />
           ))}
         </div>
 
-        {/* Empty State */}
         {shown.length === 0 && (
           <div className="text-center py-16">
             <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
@@ -113,7 +106,6 @@ export function FeedPage() {
           </div>
         )}
 
-        {/* Floating Action Button - Mobile Only */}
         <Link
           to="/create"
           className="fixed bottom-24 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-2xl flex items-center justify-center lg:hidden z-40 hover:scale-110 transition-transform"

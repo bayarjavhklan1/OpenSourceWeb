@@ -403,7 +403,7 @@ export function AuthPage() {
           to="/"
           className="block text-center mt-6 text-muted-foreground hover:text-foreground"
         >
-          ← Back to Home
+          Back to Home
         </Link>
       </div>
     </div>
