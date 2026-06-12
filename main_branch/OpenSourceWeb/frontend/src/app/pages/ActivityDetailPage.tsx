@@ -24,8 +24,7 @@ export function ActivityDetailPage() {
   const [loading, setLoading] = useState(true);
 
   const userRaw = localStorage.getItem("user");
-  const currentUser = userRaw ? JSON.parse(userRaw) : null; // null if not logged in
-
+  const currentUser = userRaw ? JSON.parse(userRaw) : null;
   const requireAuth = (action: () => void) => {
     if (!currentUser) {
       navigate("/auth");
@@ -131,7 +130,7 @@ export function ActivityDetailPage() {
             style={{ backgroundImage: `url(${activity.image})` }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
 
         <Link
           to="/feed"
@@ -170,7 +169,7 @@ export function ActivityDetailPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center">
                     <MapPin size={20} className="text-primary" />
                   </div>
                   <div>
@@ -182,7 +181,7 @@ export function ActivityDetailPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center">
                     <Calendar size={20} className="text-primary" />
                   </div>
                   <div>
@@ -194,7 +193,7 @@ export function ActivityDetailPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center ">
                     <Clock size={20} className="text-primary" />
                   </div>
                   <div>
@@ -206,7 +205,7 @@ export function ActivityDetailPage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center">
                     <Users size={20} className="text-primary" />
                   </div>
                   <div>
@@ -233,7 +232,7 @@ export function ActivityDetailPage() {
             <div className="bg-card rounded-2xl p-6 border border-border">
               <h2 className="font-semibold mb-4">Organizer</h2>
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">
+                <div className="w-12 h-12 bg-linear-to-br from-primary to-accent rounded-2xl  items-center justify-center text-3xl  hidden sm:flex">
                   {activity.organizer?.avatar || "😊"}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -247,7 +246,7 @@ export function ActivityDetailPage() {
                 </div>
                 <button
                   onClick={handleMessage}
-                  className="px-4 py-2 border border-primary text-primary rounded-xl hover:bg-primary hover:text-primary-foreground transition-all text-center sm:flex-shrink-0"
+                  className="px-4 py-2 border border-primary text-primary rounded-xl hover:bg-primary hover:text-primary-foreground transition-all text-center sm:shrink-0"
                 >
                   Message
                 </button>
@@ -269,7 +268,7 @@ export function ActivityDetailPage() {
                 {activity.comments?.map((c: any, i: number) => (
                   <div key={i} className="space-y-3">
                     <div className="flex gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg flex-shrink-0">
+                      <div className="w-10 h-10 bg-linear-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg shrink-0">
                         {c.user.avatar}
                       </div>
                       <div className="flex-1">
@@ -285,7 +284,7 @@ export function ActivityDetailPage() {
 
                     {c.replies?.map((reply: any, j: number) => (
                       <div key={j} className="flex gap-3 ml-12">
-                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 bg-linear-to-br from-primary to-accent rounded-full flex items-center justify-center shrink-0">
                           {reply.user.avatar}
                         </div>
                         <div className="flex-1">
@@ -308,7 +307,7 @@ export function ActivityDetailPage() {
               </div>
 
               <div className="flex gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg flex-shrink-0">
+                <div className="w-10 h-10 bg-linear-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg shrink-0">
                   {currentUser?.avatar || "😊"}
                 </div>
                 <input
@@ -371,7 +370,7 @@ export function ActivityDetailPage() {
                 )}
                 {activity.members?.map((m: any, i: number) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg">
+                    <div className="w-10 h-10 bg-linear-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg">
                       {m.avatar || "😊"}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -388,7 +387,7 @@ export function ActivityDetailPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent lg:hidden">
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-linear-to-t from-background via-background to-transparent lg:hidden">
         <button
           onClick={handleJoin}
           disabled={!isJoined && spotsLeft <= 0}
