@@ -65,18 +65,17 @@ export function ActivityCard({ activity }: ActivityCardProps) {
 
         <div className="space-y-2 text-sm text-muted-foreground mb-4">
           <div className="flex items-center gap-2">
-            <MapPin size={16} className="flex-shrink-0" />
+            <MapPin size={16} className="shrink-0" />
             <span className="truncate">{activity.location}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar size={16} className="flex-shrink-0" />
+            <Calendar size={16} className="shrink-0" />
             <span>
               {activity.date} • {activity.time}
             </span>
           </div>
         </div>
 
-        {/* Participants Progress */}
         <div className="mb-4">
           <div className="flex items-center justify-between text-sm mb-2">
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -89,15 +88,14 @@ export function ActivityCard({ activity }: ActivityCardProps) {
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-primary to-accent transition-all"
+              className="h-full bg-linear-to-r from-primary to-accent transition-all"
               style={{ width: `${pct}%` }}
             />
           </div>
         </div>
 
-        {/* Organizer */}
         <div className="flex items-center gap-2 pt-3 border-t border-border">
-          <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg">
+          <div className="w-8 h-8 bg-linear-to-br from-primary to-accent rounded-full flex items-center justify-center text-lg">
             {activity.organizer.avatar}
           </div>
           <div className="flex-1 min-w-0">
