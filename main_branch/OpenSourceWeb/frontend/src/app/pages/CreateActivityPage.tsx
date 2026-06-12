@@ -73,7 +73,7 @@ export function CreateActivityPage() {
         );
 
         if (!uploadRes.data.success) {
-          alert("Зураг upload хийхэд алдаа гарлаа");
+          alert("error senging image");
           return;
         }
         imageUrl = uploadRes.data.url;
@@ -132,7 +132,7 @@ export function CreateActivityPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-card rounded-2xl p-6 border border-border">
-            <label className="block mb-3 flex items-center gap-2">
+            <label className="mb-3 flex items-center gap-2">
               <Upload size={18} className="text-primary" />
               <span className="font-medium">Cover Image</span>
             </label>
@@ -174,9 +174,8 @@ export function CreateActivityPage() {
             )}
           </div>
 
-          {/* Activity Title */}
           <div className="bg-card rounded-2xl p-6 border border-border">
-            <label className="block mb-3 flex items-center gap-2">
+            <label className="mb-3 flex items-center gap-2">
               <Type size={18} className="text-primary" />
               <span className="font-medium">Activity Title</span>
             </label>
@@ -190,9 +189,8 @@ export function CreateActivityPage() {
             />
           </div>
 
-          {/* Category */}
           <div className="bg-card rounded-2xl p-6 border border-border">
-            <label className="block mb-3 flex items-center gap-2">
+            <label className="mb-3 flex items-center gap-2">
               <Tag size={18} className="text-primary" />
               <span className="font-medium">Category</span>
             </label>
@@ -213,10 +211,8 @@ export function CreateActivityPage() {
               ))}
             </div>
           </div>
-
-          {/* Description */}
           <div className="bg-card rounded-2xl p-6 border border-border">
-            <label className="block mb-3 flex items-center gap-2">
+            <label className="mb-3 flex items-center gap-2">
               <AlignLeft size={18} className="text-primary" />
               <span className="font-medium">Description</span>
             </label>
@@ -233,9 +229,8 @@ export function CreateActivityPage() {
             </p>
           </div>
 
-          {/* Location */}
           <div className="bg-card rounded-2xl p-6 border border-border">
-            <label className="block mb-3 flex items-center gap-2">
+            <label className="mb-3 flex items-center gap-2">
               <MapPin size={18} className="text-primary" />
               <span className="font-medium">Location</span>
             </label>
@@ -255,10 +250,8 @@ export function CreateActivityPage() {
               onChange={(e) => setAddress(e.target.value)}
             />
           </div>
-
-          {/* Date and Time */}
           <div className="bg-card rounded-2xl p-6 border border-border">
-            <label className="block mb-3 flex items-center gap-2">
+            <label className="mb-3 flex items-center gap-2">
               <Calendar size={18} className="text-primary" />
               <span className="font-medium">Date & Time</span>
             </label>
@@ -301,10 +294,8 @@ export function CreateActivityPage() {
               </div>
             </div>
           </div>
-
-          {/* Participant Limit */}
           <div className="bg-card rounded-2xl p-6 border border-border">
-            <label className="block mb-3 flex items-center gap-2">
+            <label className="mb-3 flex items-center gap-2">
               <Users size={18} className="text-primary" />
               <span className="font-medium">Maximum Participants</span>
             </label>
@@ -323,7 +314,6 @@ export function CreateActivityPage() {
             </p>
           </div>
 
-          {/* Submit Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               type="button"

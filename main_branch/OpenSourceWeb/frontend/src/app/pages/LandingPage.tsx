@@ -29,7 +29,7 @@ export function LandingPage() {
         setActivities(res.data);
       })
       .catch((err) => {
-        console.error("Өгөгдөл татахад алдаа:", err);
+        console.error("fetching error:", err);
       })
       .finally(() => {
         setLoading(false);
@@ -71,7 +71,6 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -80,8 +79,6 @@ export function LandingPage() {
                 <img src={logo} alt="logo" className="w-20 h-8 object-cover" />
               </div>
             </Link>
-
-            {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-6">
               <Link
                 to="/feed"
@@ -115,8 +112,6 @@ export function LandingPage() {
                 </>
               )}
             </nav>
-
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden w-10 h-10 flex items-center justify-center text-foreground"
@@ -124,8 +119,6 @@ export function LandingPage() {
               <Menu size={24} />
             </button>
           </div>
-
-          {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="lg:hidden py-4 space-y-3 border-t border-border">
               <Link
@@ -165,7 +158,7 @@ export function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-accent/20 to-secondary/30">
+      <section className="relative overflow-hidden bg-linear-to-br from-primary/10 via-accent/20 to-secondary/30">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNGRjZCNkIiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE4YzAgMy4zMTQtMi42ODYgNi02IDZzLTYtMi42ODYtNi02IDIuNjg2LTYgNi02IDYgMi42ODYgNiA2Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-40"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
@@ -180,7 +173,6 @@ export function LandingPage() {
               language exchange, and social activities
             </p>
 
-            {/* Search Bar */}
             <div className="max-w-2xl mx-auto mb-8">
               <form onSubmit={handleSearch} className="relative">
                 <Search
@@ -197,7 +189,6 @@ export function LandingPage() {
               </form>
             </div>
 
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 to={isLoggedIn ? "/feed" : "/auth"}
@@ -216,7 +207,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Categories Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <h2 className="text-3xl font-bold text-center mb-8">
           Explore Activities
@@ -244,7 +234,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Trending Activities */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <h2 className="text-3xl font-bold">Trending Activities</h2>
@@ -253,7 +242,6 @@ export function LandingPage() {
           </Link>
         </div>
 
-        {/* Loading skeleton */}
         {loading && (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
@@ -331,8 +319,7 @@ export function LandingPage() {
         )}
       </section>
 
-      {/* Footer CTA */}
-      <section className="bg-gradient-to-br from-primary via-[#FF7F50] to-accent py-16 lg:py-20">
+      <section className="bg-linear-to-br from-primary via-[#FF7F50] to-accent py-16 lg:py-20">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
             Ready to Connect?
