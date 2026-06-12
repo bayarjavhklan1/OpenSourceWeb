@@ -13,6 +13,7 @@ interface ActivityItem {
   participants?: number;
   maxParticipants?: number;
   organizer?: { name: string; avatar: string };
+  members?: { name: string; avatar: string; country?: string }[];
 }
 
 interface UserProfile {
@@ -26,10 +27,10 @@ interface UserProfile {
   stats: {
     activitiesJoined: number;
     activitiesOrganized: number;
-    followers: number;
-    following: number;
   };
 }
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 export function ProfilePage() {
   const { userId } = useParams();
@@ -56,13 +57,10 @@ export function ProfilePage() {
     stats: {
       activitiesJoined: 0,
       activitiesOrganized: 0,
-      followers: 0,
-      following: 0,
     },
   });
 
   useEffect(() => {
-    // Redirect to auth if not logged in
     if (!savedUser) {
       navigate("/auth");
       return;
@@ -70,15 +68,21 @@ export function ProfilePage() {
 
     const targetName = userId || savedUser.name;
 
-    // Fetch profile and activities in parallel
     Promise.all([
-      fetch("http://localhost:5000/users/" + targetName).then((r) => r.json()),
-      fetch("http://localhost:5000/activities").then((r) => r.json()),
+      fetch("http://localhost:5001/users/" + targetName).then((r) => r.json()),
+      fetch("http://localhost:5001/activities").then((r) => r.json()),
     ])
       .then(([userData, activitiesData]) => {
         const organized = activitiesData.filter(
           (a: ActivityItem) =>
             a.organizer && a.organizer.name === userData.name,
+        );
+
+        const joined = activitiesData.filter(
+          (a: ActivityItem) =>
+            Array.isArray(a.members) &&
+            a.members.some((m) => m.name === userData.name) &&
+            !(a.organizer && a.organizer.name === userData.name),
         );
 
         setUser({
@@ -91,9 +95,7 @@ export function ProfilePage() {
           createdAt: userData.createdAt || "",
           stats: {
             activitiesOrganized: organized.length,
-            activitiesJoined: organized.length, // update when join logic is added
-            followers: 0,
-            following: 0,
+            activitiesJoined: joined.length + organized.length,
           },
         });
 
@@ -113,7 +115,7 @@ export function ProfilePage() {
 
   // Save profile changes to backend
   const handleSaveProfile = (updatedProfile: any) => {
-    fetch("http://localhost:5000/users/" + user.name, {
+    fetch("http://localhost:5001/users/" + user.name, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -139,20 +141,48 @@ export function ProfilePage() {
     localStorage.removeItem("user");
     navigate("/");
   };
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const fiveDaysLater = new Date(now.getTime() + 5 * MS_PER_DAY)
+    .toISOString()
+    .slice(0, 10);
 
-  // Today's date in YYYY-MM-DD format for comparison
-  const today = new Date().toISOString().slice(0, 10);
+  const sameName = (a?: string, b?: string) =>
+    !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
 
   const mine = allActivities.filter(
-    (a) => a.organizer && a.organizer.name === user.name,
+    (a) =>
+      sameName(a.organizer?.name, user.name) ||
+      (Array.isArray(a.members) &&
+        a.members.some((m) => sameName(m.name, user.name))),
   );
-  const soon = mine.filter((a) => a.date >= today);
-  const done = mine.filter((a) => a.date < today);
+
+  const organized = allActivities.filter((a) =>
+    sameName(a.organizer?.name, user.name),
+  );
+  if (typeof window !== "undefined") {
+    console.log("[ProfilePage debug] user.name:", user.name);
+    console.log(
+      "[ProfilePage debug] activities sample:",
+      allActivities.slice(0, 3).map((a) => ({
+        title: a.title,
+        date: a.date,
+        organizer: a.organizer,
+        members: a.members,
+      })),
+    );
+  }
+
+  const upcoming = mine.filter(
+    (a) => a.date >= today && a.date <= fiveDaysLater,
+  );
+
+  const past = mine.filter((a) => a.date < today);
 
   const getActivities = () => {
-    if (activeTab === "upcoming") return soon;
-    if (activeTab === "past") return done;
-    if (activeTab === "organized") return mine;
+    if (activeTab === "upcoming") return upcoming;
+    if (activeTab === "past") return past;
+    if (activeTab === "organized") return organized;
     return [];
   };
 
@@ -231,18 +261,6 @@ export function ProfilePage() {
                     {user.stats.activitiesOrganized}
                   </p>
                   <p className="text-xs text-muted-foreground">Organized</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">
-                    {user.stats.followers}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Followers</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">
-                    {user.stats.following}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Following</p>
                 </div>
               </div>
 

@@ -10,12 +10,16 @@ export function FeedPage() {
 
   const categories = [
     "All",
-    "Study Together",
-    "Eat Together",
-    "Exercise",
     "Language Exchange",
+    "Study Together",
+    "Cooking",
     "Travel",
-    "Hobbies",
+    "Sports",
+    "Music",
+    "Art",
+    "Movies",
+    "Gaming",
+    "Book Club",
   ];
 
   // 처음 켜질때 모임목록 불러오기

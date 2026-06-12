@@ -28,7 +28,7 @@ const AVATARS = ["🙂", "🎓", "🌟", "🎨", "🎮", "📚", "🎵", "⚽", 
 
 export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [step, setStep] = useState(1); // 1=үндсэн мэдээлэл, 2=профайл
+  const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -38,6 +38,7 @@ export function AuthPage() {
 
   const [avatar, setAvatar] = useState("🙂");
   const [location, setLocation] = useState("");
+  const [bio, setBio] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
 
   const toggleInterest = (item: string) => {
@@ -84,6 +85,7 @@ export function AuthPage() {
         password,
         avatar,
         location,
+        bio,
         interests,
       }),
     })
@@ -97,7 +99,10 @@ export function AuthPage() {
         navigate("/feed");
       })
       .catch(() => {
-        localStorage.setItem("user", JSON.stringify({ name, email, avatar }));
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ name, email, avatar, location, bio, interests }),
+        );
         navigate("/feed");
       });
   };
@@ -113,7 +118,6 @@ export function AuthPage() {
 
       <div className="w-full max-w-md relative">
         <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-border">
-          {/* Лого */}
           <div className="flex flex-col items-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-primary to-[#FF7F50] rounded-2xl flex items-center justify-center mb-3">
               <span className="text-white font-bold text-2xl">C</span>
@@ -123,14 +127,14 @@ export function AuthPage() {
                 ? "Sign in to your account"
                 : step === 1
                   ? "Enter your basic information"
-                  : "Customize your interests"}
+                  : "Customize your profile"}
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
               {isLogin
                 ? "Sign in to your account"
                 : step === 1
                   ? "Enter your basic information"
-                  : "Customize your interests"}
+                  : "Customize your profile"}
             </p>
           </div>
 
@@ -196,7 +200,7 @@ export function AuthPage() {
                 type="submit"
                 className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
               >
-                Нэвтрэх
+                Login
               </button>
             </form>
           )}
@@ -327,9 +331,26 @@ export function AuthPage() {
               </div>
 
               <div>
-                <label>
-                  Interests
-                  <span>(multiple selections allowed)</span>
+                <label className="block text-sm font-medium mb-2">Bio</label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  maxLength={200}
+                  placeholder="Tell others about yourself..."
+                  className="w-full px-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                />
+                <p className="text-xs text-muted-foreground mt-1 text-right">
+                  {bio.length}/200
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Interests{" "}
+                  <span className="text-muted-foreground">
+                    (multiple selections allowed)
+                  </span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {INTERESTS.map((item) => (
