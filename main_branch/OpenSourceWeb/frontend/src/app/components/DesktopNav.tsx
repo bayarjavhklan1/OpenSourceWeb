@@ -55,7 +55,7 @@ export function DesktopNav() {
 
             {isLoggedIn ? (
               <Link to="/profile" className="ml-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-linear-to-br from-primary to-accent rounded-full flex items-center justify-center">
                   <User size={20} className="text-white" />
                 </div>
               </Link>
