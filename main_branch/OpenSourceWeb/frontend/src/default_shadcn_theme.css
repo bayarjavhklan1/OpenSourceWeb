@@ -174,3 +174,15 @@
     line-height: 1.5;
   }
 }
+
+.inputBox input:focus + label,
+.inputBox input:valid + label {
+  top: -9px;
+  left: 12px;
+  color: white;
+  background: black;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-size: 13px;
+  transform: translateY(0);
+}

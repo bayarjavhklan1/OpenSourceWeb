@@ -10,7 +10,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-
+import "../../default_shadcn_theme.css";
+import logo from "../../assets/Screenshot 2026-05-25 at 22.17.52.png";
 const INTERESTS = [
   "Language Exchange",
   "Study Together",
@@ -118,9 +119,13 @@ export function AuthPage() {
 
       <div className="w-full max-w-md relative">
         <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-border">
-          <div className="flex flex-col items-center mb-6">
-            <div className="w-16 h-16 bg-linear-to-br from-primary to-[#FF7F50] rounded-2xl flex items-center justify-center mb-3">
-              <span className="text-white font-bold text-2xl">C</span>
+          <div className="flex flex-col items-center mb-10">
+            <div className="p-5 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20">
+              <img
+                src={logo}
+                alt="logo"
+                className="h-16 w-auto object-contain transition-transform duration-300 hover:scale-105"
+              />
             </div>
             <h1 className="text-2xl font-bold text-foreground">
               {isLogin
@@ -152,40 +157,44 @@ export function AuthPage() {
           {isLogin && (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Email</label>
-                <div className="relative">
-                  <Mail
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    size={18}
-                  />
-                  <input
-                    type="email"
-                    placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+                <div>
+                  <div className="inputBox relative">
+                    <Mail
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      size={18}
+                    />
+                    <input
+                      type="email"
+                      placeholder=" "
+                      className="w-full pl-10 pr-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                    <label className="absolute left-10 top-1/2 -translate-y-1/2 text-muted-foreground transition-all pointer-events-none">
+                      Email
+                    </label>
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Password
-                </label>
-                <div className="relative">
+                <div className="inputBox  relative">
                   <Lock
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     size={18}
                   />
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder=""
                     className="w-full pl-10 pr-12 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  <label className="absolute left-10 top-1/2 -translate-y-1/2 text-muted-foreground transition-all pointer-events-none">
+                    Password
+                  </label>
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
