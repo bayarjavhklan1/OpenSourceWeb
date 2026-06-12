@@ -113,13 +113,13 @@ export function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-accent/20 to-secondary/30 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-primary/10 via-accent/20 to-secondary/30 p-4">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNGRjZCNkIiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE4YzAgMy4zMTQtMi42ODYgNi02IDZzLTYtMi42ODYtNi02IDIuNjg2LTYgNi02IDYgMi42ODYgNiA2Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-40" />
 
       <div className="w-full max-w-md relative">
         <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-border">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-[#FF7F50] rounded-2xl flex items-center justify-center mb-3">
+            <div className="w-16 h-16 bg-linear-to-br from-primary to-[#FF7F50] rounded-2xl flex items-center justify-center mb-3">
               <span className="text-white font-bold text-2xl">C</span>
             </div>
             <h1 className="text-2xl font-bold text-foreground">
