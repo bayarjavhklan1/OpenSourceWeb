@@ -3,7 +3,6 @@ var bcrypt = require("bcryptjs");
 var User = require("../models/User.js");
 var router = express.Router();
 
-// Register endpoint
 router.post("/register", function (req, res) {
   var name = req.body.name;
   var email = req.body.email;
@@ -52,7 +51,6 @@ router.post("/register", function (req, res) {
   });
 });
 
-// Login endpoint
 router.post("/login", function (req, res) {
   var email = req.body.email;
   var pw = req.body.password;

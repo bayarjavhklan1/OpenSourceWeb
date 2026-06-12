@@ -3,14 +3,12 @@ var Activity = require("../models/Activity.js");
 
 var router = express.Router();
 
-// 모임 전체목록
 router.get("/", function (req, res) {
   Activity.find().then(function (list) {
     res.json(list);
   });
 });
 
-// 모임 하나
 router.get("/:id", function (req, res) {
   Activity.findById(req.params.id).then(function (item) {
     if (!item) return res.json({ success: false, message: "없는 모임이에요" });
@@ -18,7 +16,6 @@ router.get("/:id", function (req, res) {
   });
 });
 
-// 모임 등록
 router.post("/", function (req, res) {
   var b = req.body;
 
@@ -59,7 +56,6 @@ router.post("/", function (req, res) {
     });
 });
 
-// Join / Leave
 router.post("/:id/join", function (req, res) {
   var { member, action } = req.body;
 
