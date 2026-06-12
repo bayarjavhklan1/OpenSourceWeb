@@ -10,7 +10,7 @@ export function FeedPage() {
 
   const categories = [
     "All",
-    "Language Exchange",
+    "Language Exchang",
     "Study Together",
     "Cooking",
     "Travel",
