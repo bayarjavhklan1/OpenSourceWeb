@@ -35,7 +35,29 @@ const myName = storedUser ? JSON.parse(storedUser).name : "Guest";
 
   // Search query for conversations
   const [searchQuery, setSearchQuery] = useState("");
+const [conversations, setConversations] = useState<any[]>([]);
 
+// Load chat rooms from backend
+useEffect(() => {
+  fetch("http://localhost:5001/chat/rooms")
+    .then((res) => res.json())
+    .then((rooms) => {
+      // Convert backend rooms to conversation format
+      const convList = rooms.map((r: any) => ({
+        id: r._id,
+        name: "Chat Room " + r._id,
+        avatar: "💬",
+        lastMessage: r.lastMessage || "No messages yet",
+        time: r.lastTime ? new Date(r.lastTime).toLocaleString() : "",
+        unread: 0,
+        online: false,
+      }));
+      setConversations(convList);
+    })
+    .catch(() => {
+      setConversations([]);
+    });
+}, []);
   function loadMsg() {
     let room = chatId || "1";
     let url = "http://localhost:5001/chat/messages?room=" + room;
@@ -66,12 +88,6 @@ const myName = storedUser ? JSON.parse(storedUser).name : "Guest";
     return () => clearInterval(timer);
   }, [chatId]);
 
-  const conversations = [
-    { id: "1", name: "Emma Wilson", avatar: "👩", lastMessage: "See you tomorrow at the cafe!", time: "2m ago", unread: 2, online: true },
-    { id: "2", name: "Marco Silva", avatar: "👨", lastMessage: "Thanks for organizing!", time: "1h ago", unread: 0, online: true },
-    { id: "3", name: "Yuki Tanaka", avatar: "👩", lastMessage: "What time should we meet?", time: "3h ago", unread: 1, online: false },
-    { id: "group-1", name: "Korean Language Exchange", avatar: "🗣️", lastMessage: "Sarah: Looking forward to it!", time: "5h ago", unread: 5, online: false, isGroup: true },
-  ];
 
   // Filter conversations based on search query (case-insensitive)
   const filteredConversations = conversations.filter((c) => {
@@ -250,21 +266,24 @@ const myName = storedUser ? JSON.parse(storedUser).name : "Guest";
                   <option value="ja">To: JA</option>
                   <option value="zh">To: ZH</option>
                 </select>
-                <button onClick={() => startCall("voice")} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground transition-all">
-                  <Phone size={20} />
-                </button>
-                <button onClick={() => startCall("video")} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground transition-all">
-                  <Video size={20} />
-                </button>
-                <button className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground transition-all">
-                  <MoreVertical size={20} />
-                </button>
+               
               </div>
             </div>
 
             {/* Messages - two-sided layout */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((msg) => {
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+  {messages.length === 0 ? (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+          <MessageCircle size={32} className="text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold mb-1">No messages yet</h3>
+        <p className="text-sm text-muted-foreground">Send a message to start the conversation</p>
+      </div>
+    </div>
+  ) : (
+    messages.map((msg) => {
                 const isMe = msg.sender_name === myName;
                 const d = new Date(msg.created_at);
                 const timeStr = d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes();
@@ -301,10 +320,10 @@ const myName = storedUser ? JSON.parse(storedUser).name : "Guest";
                       </div>
                     </div>
                   </div>
-                );
-              })}
+         );
+              })
+            )}
             </div>
-
             {/* Message Input */}
             <div className="p-4 border-t border-border bg-card">
               <form onSubmit={handleSendMessage} className="flex gap-3">
