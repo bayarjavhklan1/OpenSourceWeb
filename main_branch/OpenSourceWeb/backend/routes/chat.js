@@ -42,6 +42,8 @@ router.get("/rooms", function (req, res) {
         _id: "$chat_room",
         lastMessage: { $first: "$message_text" },
         lastTime: { $first: "$created_at" },
+        lastSender: { $first: "$sender_name" },
+        participants: { $addToSet: "$sender_name" },
       },
     },
     { $sort: { lastTime: -1 } },

@@ -42,16 +42,26 @@ useEffect(() => {
   fetch("http://localhost:5001/chat/rooms")
     .then((res) => res.json())
     .then((rooms) => {
+      // Get current user's name from localStorage
+      var userStr = localStorage.getItem("user");
+      var currentUser = userStr ? JSON.parse(userStr).name : "";
+
       // Convert backend rooms to conversation format
-      const convList = rooms.map((r: any) => ({
-        id: r._id,
-        name: "Chat Room " + r._id,
-        avatar: "💬",
-        lastMessage: r.lastMessage || "No messages yet",
-        time: r.lastTime ? new Date(r.lastTime).toLocaleString() : "",
-        unread: 0,
-        online: false,
-      }));
+      const convList = rooms.map((r: any) => {
+        // Find the OTHER user's name (not me)
+        var otherUsers = (r.participants || []).filter((p: string) => p !== currentUser);
+        var displayName = otherUsers.length > 0 ? otherUsers.join(", ") : (r.lastSender || "Unknown");
+        
+        return {
+          id: r._id,
+          name: displayName,
+          avatar: "👤",
+          lastMessage: r.lastMessage || "No messages yet",
+          time: r.lastTime ? new Date(r.lastTime).toLocaleString() : "",
+          unread: 0,
+          online: false,
+        };
+      });
       setConversations(convList);
     })
     .catch(() => {
