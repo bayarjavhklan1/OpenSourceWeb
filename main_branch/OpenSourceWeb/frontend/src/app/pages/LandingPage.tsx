@@ -261,7 +261,18 @@ export function LandingPage() {
 
         {!loading && (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {activities.slice(0, 3).map((activity: any) => (
+            {[...activities]
+              .filter((a: any) => a.participants < a.maxParticipants) // hide full events
+              .sort((a: any, b: any) => {
+                const spotsA = a.maxParticipants - a.participants;
+                const spotsB = b.maxParticipants - b.participants;
+                if (spotsA !== spotsB) return spotsA - spotsB;
+                const timeA = new Date(`${a.date} ${a.time}`).getTime();
+                const timeB = new Date(`${b.date} ${b.time}`).getTime();
+                return timeA - timeB;
+              })
+              .slice(0, 3)
+              .map((activity: any) => (
               <Link
                 key={activity._id}
                 to={`/activity/${activity._id}`}
