@@ -94,8 +94,8 @@ export function CreateActivityPage() {
         maxParticipants: Number(maxParticipants),
         image: imageUrl,
         organizer: user
-          ? { name: user.name, avatar: user.avatar || "" }
-          : { name: "Anonymous", avatar: "" },
+          ? { name: user.name, avatar: user.avatar || "", bio: user.bio || "" }
+          : { name: "Anonymous", avatar: "", bio: "" },
       });
 
       if (!res.data.success) {

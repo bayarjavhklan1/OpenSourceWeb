@@ -35,7 +35,7 @@ const activitySchema = new mongoose.Schema({
   maxParticipants: Number,
   image: String,
   createdAt: { type: Date, default: Date.now },
-  organizer: { name: String, avatar: String },
+  organizer: { name: String, avatar: String, bio: String },
   comments: [commentSchema],
   members: [memberSchema],
 });

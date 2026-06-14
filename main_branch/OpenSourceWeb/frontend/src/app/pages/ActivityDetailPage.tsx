@@ -238,7 +238,7 @@ export function ActivityDetailPage() {
                   </h3>
                   <p className="text-sm text-muted-foreground mb-2">
                     {activity.organizer?.bio ||
-                      "Passionate about connecting international students"}
+                      "Passionate about connecting international students."}
                   </p>
                 </div>
                 <button

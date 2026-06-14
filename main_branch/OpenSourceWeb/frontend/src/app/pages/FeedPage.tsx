@@ -10,16 +10,14 @@ export function FeedPage() {
 
   const categories = [
     "All",
-    "Language Exchange",
     "Study Together",
-    "Cooking",
+    "Eat Together",
+    "Exercise",
+    "Language Exchange",
     "Travel",
-    "Sports",
-    "Music",
-    "Art",
-    "Movies",
-    "Gaming",
-    "Book Club",
+    "Hobbies",
+    "Social Events",
+    "Other",
   ];
 
   useEffect(() => {
