@@ -22,7 +22,7 @@ const upload = multer({
     const ext = allowed.test(path.extname(file.originalname).toLowerCase());
     const mime = allowed.test(file.mimetype);
     if (ext && mime) return cb(null, true);
-    cb(new Error("Зөвхөн зураг файл оруулна уу"));
+    cb(new Error("only img file"));
   },
 });
 

@@ -8,7 +8,6 @@ router.get("/users", function (req, res) {
   var cond = {};
 
   if (kw) {
-    // name 이나 email 에 검색어 들어간거 찾기 (LIKE '%kw%') -> MoogooDB 문법
     cond = {
       $or: [
         { name: { $regex: kw, $options: "i" } },
@@ -17,7 +16,6 @@ router.get("/users", function (req, res) {
     };
   }
 
-  // 비번빼고 가져오기, 최신가입순(-1)
   User.find(cond)
     .select("-password")
     .sort({ createdAt: -1 })
@@ -26,12 +24,11 @@ router.get("/users", function (req, res) {
     });
 });
 
-// 회원삭제
 router.post("/users/:id/delete", function (req, res) {
   User.findById(req.params.id).then(function (user) {
     if (!user)
       return res.json({ success: false, message: "유저를 찾을 수 없어요" });
-    // DELETE FROM users WHERE _id=?
+
     User.findByIdAndDelete(req.params.id).then(function () {
       res.json({ success: true, message: "유저 삭제 완료" });
     });
@@ -65,8 +62,6 @@ router.post("/users/:id/demote", function (req, res) {
     });
   });
 });
-
-// ===== 모임 =====
 
 router.get("/activities", function (req, res) {
   var kw = req.query.keyword || "";
@@ -128,7 +123,6 @@ router.post("/activities/:id/update", function (req, res) {
     act.duration = b.duration || "";
     act.maxParticipants = Number(b.maxParticipants);
 
-    // UPDATE activities SET ... WHERE _id=?
     act.save().then(function () {
       res.json({ success: true, message: "모임 수정 완료", data: act });
     });

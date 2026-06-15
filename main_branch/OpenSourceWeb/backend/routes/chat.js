@@ -11,13 +11,11 @@ router.post("/send", function (req, res) {
     message_text: req.body.message_text,
   });
 
-  // INSERT INTO chats (...) VALUES (...)
   msg.save().then(function () {
     res.json({ success: true });
   });
 });
 
-// 메시지 가져오기 (그 방에서 마지막으로 본거 이후만)
 router.get("/messages", function (req, res) {
   var room = req.query.room;
   var lastId = req.query.lastId;

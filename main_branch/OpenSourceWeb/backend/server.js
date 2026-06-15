@@ -1,7 +1,7 @@
 require("dotenv").config();
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
-// 서버 시작하는 파일
+
 var express = require("express");
 var mongoose = require("mongoose");
 var cors = require("cors");
@@ -9,27 +9,23 @@ var path = require("path");
 const fs = require("fs");
 const uploadRoute = require("./routes/upload.js");
 
-// 라우터들
 var authRoute = require("./routes/auth.js");
 var actRoute = require("./routes/activity.js");
 var chatRoute = require("./routes/chat.js");
 var adminRoute = require("./routes/admin.js");
-var translateRoute = require("./routes/translate.js"); //add
+var translateRoute = require("./routes/translate.js");
 
 var app = express();
 
 app.use(cors());
-app.use(express.json()); // cors 다음에 json (순서 중요함)
-app.use("/translate", translateRoute); //add
+app.use(express.json());
+app.use("/translate", translateRoute);
 
-// public 폴더 정적파일 (admin.html 같은거)
 app.use(express.static(path.join(__dirname, "public")));
 
-// mongoose.connect()-н өмнө нэм:
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
-// db 연결
 mongoose
   .connect(process.env.MONGO_URI)
   .then(function () {
